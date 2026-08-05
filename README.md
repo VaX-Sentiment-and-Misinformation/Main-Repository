@@ -4,7 +4,7 @@ Welcome to the project! This repository contains a split-architecture applicatio
 
 ---
 
-## 🚀 Quick Start Guide 
+## 🚀 Quick Start Guide
 
 Follow these steps to get the entire project running locally on your machine.
 
