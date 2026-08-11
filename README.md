@@ -37,7 +37,7 @@ source venv/bin/activate
 
 ### 1.2 Install Python Dependencies
 ```bash
-pip install -r requirements.txt
+pip install -r .\main_api\requirements.txt
 ```
 
 ### 1.3 Configure Environment Variables
