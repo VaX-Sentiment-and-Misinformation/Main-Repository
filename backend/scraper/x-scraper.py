@@ -17,6 +17,7 @@ Usage:
 import argparse
 import csv
 import datetime
+import itertools
 import json
 import math
 import os
@@ -62,51 +63,61 @@ def _pick_column(header):
     return None
 
 
-def read_ids(path, id_column=None, limit=0, offset=0):
-    """Stream IDs out of a CSV or plain text file.
+def iter_ids(path, id_column=None, offset=0, stats=None):
+    """Lazily yield unique IDs from a CSV/TSV or plain text file.
 
-    Streams line by line and stops as soon as the limit is hit, so a
-    600k-row CSV costs nothing extra when you only want the first 10k.
-    Dedupes as it goes; limit and offset apply to unique valid IDs.
+    A generator so target mode can keep pulling IDs as failures come in,
+    without loading a 600k-row file into memory. `stats` is an optional dict
+    that gets 'consumed' and 'unparseable' counters written into it.
     """
-    ids, seen, skipped, unparseable = [], set(), 0, 0
+    seen, skipped, unparseable, consumed = set(), 0, 0, 0
     is_csv = path.lower().endswith((".csv", ".tsv"))
     delim = "\t" if path.lower().endswith(".tsv") else ","
     col = None
 
-    with open(path, "r", encoding="utf-8-sig", newline="") as f:
-        if is_csv:
-            reader = csv.reader(f, delimiter=delim)
-            try:
-                header = next(reader)
-            except StopIteration:
-                return []
+    try:
+        with open(path, "r", encoding="utf-8-sig", newline="") as f:
+            if is_csv:
+                reader = csv.reader(f, delimiter=delim)
+                try:
+                    header = next(reader)
+                except StopIteration:
+                    return
 
-            if id_column is not None:
-                if id_column.isdigit():
-                    col = int(id_column)
+                if id_column is not None:
+                    if id_column.isdigit():
+                        col = int(id_column)
+                    else:
+                        lowered = [h.strip().lower() for h in header]
+                        if id_column.lower() not in lowered:
+                            raise SystemExit("column %r not found. header is: %s"
+                                             % (id_column, ", ".join(header)))
+                        col = lowered.index(id_column.lower())
                 else:
-                    lowered = [h.strip().lower() for h in header]
-                    if id_column.lower() not in lowered:
-                        raise SystemExit("column %r not found. header is: %s"
-                                         % (id_column, ", ".join(header)))
-                    col = lowered.index(id_column.lower())
+                    col = _pick_column(header)
+                    if col is not None:
+                        print("using CSV column %r" % header[col], file=sys.stderr)
+
+                if col is None:
+                    # no header we recognise, so row 1 is data. chain it back in
+                    # rather than materialising the file.
+                    print("no ID column detected, scanning every field "
+                          "(pass --id-column to be explicit)", file=sys.stderr)
+                    reader = itertools.chain([header], reader)
+
+                rows = reader
             else:
-                col = _pick_column(header)
-                if col is not None:
-                    print("using CSV column %r" % header[col], file=sys.stderr)
+                rows = ([line] for line in f)
 
-            if col is None:
-                # no header we recognise, so treat row 1 as data and scan whole rows
-                print("no ID column detected, scanning every field "
-                      "(pass --id-column to be explicit)", file=sys.stderr)
-                rows = [header] + list(reader)
-                reader = iter(rows)
-
-            for row in reader:
+            for row in rows:
                 if not row:
                     continue
-                cell = row[col] if (col is not None and col < len(row)) else " ".join(row)
+                if col is not None and col < len(row):
+                    cell = row[col]
+                elif col is not None:
+                    continue  # short row, column missing
+                else:
+                    cell = " ".join(row)
                 tid = parse_id(cell)
                 if not tid:
                     unparseable += 1
@@ -117,26 +128,28 @@ def read_ids(path, id_column=None, limit=0, offset=0):
                 if skipped < offset:
                     skipped += 1
                     continue
-                ids.append(tid)
-                if limit and len(ids) >= limit:
-                    break
-        else:
-            for line in f:
-                tid = parse_id(line)
-                if not tid or tid in seen:
-                    continue
-                seen.add(tid)
-                if skipped < offset:
-                    skipped += 1
-                    continue
-                ids.append(tid)
-                if limit and len(ids) >= limit:
-                    break
+                consumed += 1
+                if stats is not None:
+                    stats["consumed"] = consumed
+                    stats["unparseable"] = unparseable
+                yield tid
+    finally:
+        if stats is not None:
+            stats["consumed"] = consumed
+            stats["unparseable"] = unparseable
+        if unparseable:
+            print("warning: %d rows had no usable ID in that column "
+                  "(scientific notation? wrong column?)" % unparseable, file=sys.stderr)
 
-    if unparseable:
-        print("warning: %d rows had no usable ID in that column "
-              "(scientific notation? wrong column?)" % unparseable, file=sys.stderr)
-    return ids
+
+def read_ids(path, id_column=None, limit=0, offset=0):
+    """Materialise up to `limit` IDs. Used for dry-run and fixed-count mode."""
+    out = []
+    for tid in iter_ids(path, id_column, offset):
+        out.append(tid)
+        if limit and len(out) >= limit:
+            break
+    return out
 
 
 def _base36(x):
@@ -431,38 +444,66 @@ def main():
     p.add_argument("--workers", type=int, default=5, help=">1 to parallelise (be polite)")
     p.add_argument("--resume", action="store_true", help="skip IDs already in --out")
     p.add_argument("--pretty", action="store_true", help="pretty-print to stdout")
+    p.add_argument("--target", type=int, default=0,
+                   help="keep going until N posts fetched SUCCESSFULLY (0 = off). "
+                        "Streams more IDs to make up for failures.")
     p.add_argument("--dry-run", action="store_true",
                    help="validate IDs offline and report mangled ones, no network calls")
     args = p.parse_args()
 
-    ids, seen = [], set()
+    stats = {"consumed": 0, "unparseable": 0}
+    cli_ids = []
+    seen = set()
     for r in args.ids:
         tid = parse_id(r)
         if tid and tid not in seen:
             seen.add(tid)
-            ids.append(tid)
-
-    if args.from_file:
-        for tid in read_ids(args.from_file, args.id_column, args.limit, args.offset):
-            if tid not in seen:
-                seen.add(tid)
-                ids.append(tid)
-        print("loaded %d IDs from %s" % (len(ids), args.from_file), file=sys.stderr)
-
-    if not ids:
-        p.error("no valid post IDs given")
+            cli_ids.append(tid)
 
     if args.dry_run:
+        ids = list(cli_ids)
+        if args.from_file:
+            ids += [t for t in read_ids(args.from_file, args.id_column,
+                                        args.limit or args.target, args.offset)
+                    if t not in seen]
+        if not ids:
+            p.error("no valid post IDs given")
         return dry_run(ids)
 
+    done = load_done(args.out) if (args.resume and args.out) else {}
+
+    # Target mode streams IDs lazily so failures can be topped up. Fixed mode
+    # materialises the list up front so progress can show a real denominator.
+    if args.target:
+        def source():
+            for t in cli_ids:
+                yield t
+            if args.from_file:
+                for t in iter_ids(args.from_file, args.id_column, args.offset, stats):
+                    if t not in seen:
+                        seen.add(t)
+                        yield t
+        id_source, total = source(), None
+        print("target mode: fetching until %d posts succeed" % args.target, file=sys.stderr)
+    else:
+        ids = list(cli_ids)
+        if args.from_file:
+            for t in iter_ids(args.from_file, args.id_column, args.offset, stats):
+                if t not in seen:
+                    seen.add(t)
+                    ids.append(t)
+                if args.limit and len(ids) >= args.limit:
+                    break
+            print("loaded %d IDs from %s" % (len(ids), args.from_file), file=sys.stderr)
+        if not ids:
+            p.error("no valid post IDs given")
+        id_source, total = iter(ids), len(ids)
+
     carried = []
-    if args.resume and args.out:
-        done = load_done(args.out)
-        before = len(ids)
-        carried = [done[i] for i in ids if i in done]
-        ids = [i for i in ids if i not in done]
-        if before != len(ids):
-            print("resuming, skipping %d already fetched" % (before - len(ids)), file=sys.stderr)
+    if done:
+        carried = list(done.values())
+        print("resuming: %d posts already in %s count toward the total"
+              % (len(carried), args.out), file=sys.stderr)
 
     order = ["fxtwitter", "syndication"] if args.backend == "auto" else [args.backend]
 
@@ -474,10 +515,14 @@ def main():
         time.sleep(args.delay)
         return tid, rec, err
 
-    def handle(i, tid, rec, err):
+    attempted = [0]
+    goal = args.target if args.target else None
+
+    def handle(tid, rec, err):
+        attempted[0] += 1
+        n = attempted[0]
         if rec is None:
             failures.append((tid, err))
-            print("[%d/%d] %s FAILED (%s)" % (i, len(ids), tid, err), file=sys.stderr)
             return
         rows.append(rec)
         if out_f:
@@ -485,20 +530,60 @@ def main():
             out_f.flush()
         if args.pretty or not (args.out or args.csv or args.json_out):
             print(json.dumps(rec, ensure_ascii=False, indent=2 if args.pretty else None))
-        elif i % 25 == 0 or i == len(ids):
-            print("[%d/%d] ok=%d failed=%d" % (i, len(ids), len(rows), len(failures)),
-                  file=sys.stderr)
+
+        if len(rows) % 25 == 0 or (goal and len(rows) + len(carried) >= goal):
+            if goal:
+                print("  got %d/%d  (tried %d, %d failed, %.0f%% hit rate)"
+                      % (len(rows) + len(carried), goal, n, len(failures),
+                         100.0 * len(rows) / max(1, n)), file=sys.stderr)
+            else:
+                print("  [%d/%d] ok=%d failed=%d" % (n, total, len(rows), len(failures)),
+                      file=sys.stderr)
+
+    def reached():
+        return goal is not None and (len(rows) + len(carried)) >= goal
+
+    def capped():
+        return args.limit and attempted[0] >= args.limit
 
     try:
         if args.workers > 1:
+            # Submit in waves rather than all at once, so target mode can stop
+            # pulling IDs as soon as it has enough successes.
+            wave = max(args.workers * 4, 20)
             with ThreadPoolExecutor(max_workers=args.workers) as ex:
-                futures = {ex.submit(work, t): t for t in ids}
-                for i, fut in enumerate(as_completed(futures), 1):
-                    tid, rec, err = fut.result()
-                    handle(i, tid, rec, err)
+                pending = set()
+                exhausted = False
+                while True:
+                    while not exhausted and len(pending) < wave and not reached() and not capped():
+                        try:
+                            nxt = next(id_source)
+                        except StopIteration:
+                            exhausted = True
+                            break
+                        if nxt in done:
+                            continue
+                        pending.add(ex.submit(work, nxt))
+                    if not pending:
+                        break
+                    finished = next(as_completed(pending))
+                    pending.discard(finished)
+                    handle(*finished.result())
+                    if reached() or capped():
+                        for fut in pending:
+                            fut.cancel()
+                        # drain whatever already came back, no point wasting it
+                        for fut in list(pending):
+                            if fut.done() and not fut.cancelled():
+                                handle(*fut.result())
+                        break
         else:
-            for i, tid in enumerate(ids, 1):
-                handle(i, *work(tid))
+            for tid in id_source:
+                if tid in done:
+                    continue
+                if reached() or capped():
+                    break
+                handle(*work(tid))
     except KeyboardInterrupt:
         print("\ninterrupted. %d posts already saved to %s"
               % (len(rows), args.out or "(nothing, you passed no --out)"), file=sys.stderr)
@@ -527,10 +612,29 @@ def main():
             for tid, err in failures:
                 f.write("%s\t%s\n" % (tid, err))
 
-    print("\ndone: %d ok, %d failed" % (len(rows), len(failures)), file=sys.stderr)
+    hit = 100.0 * len(rows) / max(1, attempted[0])
+    print("\ndone: %d fetched, %d failed (%.1f%% hit rate)"
+          % (len(rows), len(failures), hit), file=sys.stderr)
+
+    if goal:
+        got = len(rows) + len(carried)
+        if got >= goal:
+            print("target of %d reached." % goal, file=sys.stderr)
+        elif args.limit and attempted[0] >= args.limit:
+            print("stopped at the --limit cap of %d attempts with %d/%d posts. "
+                  "Raise or drop --limit to keep going." % (args.limit, got, goal),
+                  file=sys.stderr)
+        else:
+            print("ran out of IDs at %d/%d. The file didn't have enough live posts."
+                  % (got, goal), file=sys.stderr)
+        if args.from_file and stats["consumed"]:
+            nxt = args.offset + stats["consumed"]
+            print("consumed %d IDs from the file. For the next batch use --offset %d"
+                  % (stats["consumed"], nxt), file=sys.stderr)
+
     if failures:
         print("failed IDs written to failed_ids.txt", file=sys.stderr)
-    return 1 if (ids and not rows) else 0
+    return 1 if (attempted[0] and not rows) else 0
 
 
 if __name__ == "__main__":
