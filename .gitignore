@@ -1,36 +1,36 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Repo-wide ignores. The Next.js app has its own frontend/.gitignore —
+# keep JS/Next rules there, not here.
 
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ipynb_checkpoints/
 
-# testing
-/coverage
+# virtual environments
+venv/
+.venv/
+env/
+ENV/
 
-# next.js
-/.next/
-/out/
+# secrets
+.env
+.env.*
+!.env.example
 
-# production
-/build
+# scraper run artefacts (checked-in datasets under data/ are unaffected)
+failed_ids.txt
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# editors
+.vscode/
+.idea/
+*.swp
 
 # misc
-.DS_Store
 *.pem
-
-# debug
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# local env files
-.env*.local
-.env
-
-# vercel
-.vercel
-
-# typescript
-*.tsbuildinfo
-next-env.d.ts
