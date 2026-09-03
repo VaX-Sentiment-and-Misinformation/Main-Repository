@@ -19,7 +19,10 @@ export type XPost = {
   replies: number | null;
   views: number | null;
   media_urls: string[];
-  _backend: string;
+  backend: string | null;
+  fetched_at: string;
+  // true when the row came from the database rather than a fresh fetch
+  _cached: boolean;
 };
 
 export default function PostLookup() {

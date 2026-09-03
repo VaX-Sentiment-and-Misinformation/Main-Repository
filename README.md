@@ -12,7 +12,7 @@ Follow these steps to get the entire project running locally on your machine.
 Ensure you have the following installed locally:
 * **Python** (v3.10 or higher)
 * **Node.js** (v18 or higher) & npm
-* **PostgreSQL** instance running locally
+* A **Supabase** account (free tier) — the Postgres database is hosted there, so nothing to install locally
 
 ---
 
@@ -40,18 +40,34 @@ source venv/bin/activate
 pip install -r .\main_api\requirements.txt
 ```
 
-### 1.3 Configure Environment Variables
-Create a local `.env` file inside the `backend/` folder:
+### 1.3 Configure Environment Variables (Supabase)
+Copy the template and fill in your own connection string:
 ```bash
-touch .env
+cp .env.example .env      # Windows: copy .env.example .env
 ```
-Open `backend/.env` and add your local PostgreSQL connection configuration string:
+
+To get the string: Supabase dashboard → **Connect** → **Connection string** → choose
+**Session pooler**, and replace `[YOUR-PASSWORD]` with your database password.
+
 ```env
-DATABASE_URL="postgresql://<your_username>:<your_password>@localhost:5432/<your_database_name>"
+DATABASE_URL="postgresql://postgres.<project-ref>:<password>@aws-<region>.pooler.supabase.com:5432/postgres"
 ```
-*(Note: Make sure your target database exists in your PostgreSQL instance before running the app).*
+
+> ⚠️ **Pick the Session pooler, not the Direct connection.** On the free tier the
+> direct connection (`db.<ref>.supabase.co`) is reachable over **IPv6 only** — IPv4 is a
+> paid add-on — so on most home and campus networks it fails with
+> `could not translate host name` or `Network is unreachable`. The session pooler is
+> IPv4 on every tier and is designed for long-lived servers like this API.
+> Don't use the **Transaction** pooler (port `6543`) either: it's for serverless and
+> doesn't support prepared statements.
+
+If your password contains `@ : / ? # %`, percent-encode it (e.g. `@` → `%40`), otherwise
+the URL parses incorrectly.
+
+Tables are created automatically on startup — there is no migration step to run.
 
 ### 1.4 Start the Backend Server
+Run this from `backend/main_api/`:
 ```bash
 uvicorn main:app --reload
 ```
