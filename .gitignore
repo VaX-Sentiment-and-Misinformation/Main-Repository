@@ -34,3 +34,15 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# ML model artifacts (too large for git; regenerate via training scripts)
+backend/model_misinformation/savedModel/
+*.safetensors
+optimizer.pt
+
