@@ -18,7 +18,8 @@ Main-Repository/
 │   │   ├── main.py            #   FastAPI app + routes
 │   │   ├── database.py        #   Engine + session handling (Supabase)
 │   │   ├── models.py          #   SQLModel tables
-│   │   └── x_post_fetcher.py  #   Fetch a single X post from its URL
+│   │   ├── x_post_fetcher.py  #   Fetch a single X post from its URL (free, no key)
+│   │   └── x_api_search.py    #   Official X API search — paid, needs X_BEARER_TOKEN
 │   ├── model_sentiment/       # Sentiment microservice        (not implemented yet)
 │   ├── model_misinformation/  # Misinformation microservice   (not implemented yet)
 │   ├── scraper/

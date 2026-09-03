@@ -10,17 +10,27 @@ from datetime import datetime, timezone
 from sqlalchemy import JSON, BigInteger, Column, DateTime
 from sqlmodel import Field, SQLModel
 
-# Both backends return X's own format, e.g. "Tue Mar 21 20:50:14 +0000 2006".
+# The public backends (fxtwitter, syndication) return X's legacy format.
 X_TIME_FORMAT = "%a %b %d %H:%M:%S %z %Y"
 
 
 def parse_x_time(value: str | None) -> datetime | None:
-    """Turn X's timestamp string into a datetime, or None if it won't parse."""
+    """Turn an X timestamp into a datetime, or None if it won't parse.
+
+    Two formats reach us: the legacy one above from the public backends, and
+    ISO 8601 ("2026-09-01T12:00:00.000Z") from the official API via
+    x_api_search. Parsing only the first silently nulls every API-sourced date.
+    """
     if not value:
         return None
     try:
         return datetime.strptime(value, X_TIME_FORMAT)
     except (ValueError, TypeError):
+        pass
+    try:
+        # fromisoformat only learned to read a trailing "Z" in Python 3.11.
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except (ValueError, TypeError, AttributeError):
         return None
 
 
