@@ -1,7 +1,7 @@
 import pandas as pd
 import re
  
-df = pd.read_csv("/Users/jacquelinesurya/Monash/Final Year Project/Main-Repository/data/sentiment/sentimentvaccine1.csv")
+df = pd.read_csv("Main-Repository/data/sentiment/sentimentvaccine1.csv")
 print(df.columns.tolist())
 print(df.head())
 df = df.dropna(subset=["safe_text", "label"])
