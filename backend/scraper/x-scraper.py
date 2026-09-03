@@ -8,7 +8,7 @@ Backends (tried in order by default):
 
 Stdlib only. Python 3.8+.
 
-Usage:
+Usage: 
   python xscrape.py 20 1234567890123456789
   python xscrape.py --from-file ids.txt --out posts.jsonl --csv posts.csv
   python xscrape.py https://x.com/jack/status/20 --pretty
