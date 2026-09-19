@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
 """
-x_api_search.py - fetch recent vaccine-related X posts via the official X API v2.
+x_api_search.py - fetch recent vaccine X posts via the official X API v2.
 
 Uses GET /2/tweets/search/recent, which covers a rolling 7-day window, and returns
-the highest-view posts from that window.
+the most-liked posts of a pool from that window.
 
     from x_api_search import fetch_top_vaccine_posts
 
-    posts = fetch_top_vaccine_posts(limit=10)   # top 10 by views
+    posts = fetch_top_vaccine_posts(limit=10)   # 10 notable posts, by likes
 
 Two things worth knowing before you run this:
 
-1. **The API cannot sort by views.** `search/recent` supports `sort_order=recency`
-   or `relevancy` only. So this fetches a larger *pool* of recent matches and sorts
-   them by `impression_count` locally. The top 10 are therefore the 10 most-viewed
-   of the pool, not of every vaccine post on X in the last week. A bigger pool gives
-   a better answer and costs more.
+1. **The API cannot sort by engagement at all.** `search/recent` supports
+   `sort_order=recency` or `relevancy` only - there is no sort-by-likes, and the v2
+   query syntax has no `min_faves:` operator either. So this fetches a *pool* and
+   ranks it by `like_count` locally. The top 10 are the 10 most-liked of the pool,
+   not of every vaccine post on X in the last week. Call `count_recent()` first -
+   it returns no posts, so it is not billed per post - to see how much of the week
+   your pool actually covers.
 
 2. **It costs money.** The X API is pay-per-usage with no free tier, billed per post
    returned (about $0.005 each at the time of writing). `pool=100` is roughly $0.50 a
@@ -32,16 +34,33 @@ import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 
-__all__ = ["fetch_top_vaccine_posts", "search_recent", "XAPIError", "VACCINE_QUERY"]
+__all__ = ["fetch_top_vaccine_posts", "rank_posts", "search_recent", "count_recent",
+           "save_run", "XAPIError", "VACCINE_QUERY"]
 
 SEARCH_URL = "https://api.x.com/2/tweets/search/recent"
+# Counts, unlike search, returns no posts - so it is not billed per post.
+COUNTS_URL = "https://api.x.com/2/tweets/counts/recent"
 
 # -is:retweet keeps retweets out: they duplicate the original's text and their
-# metrics belong to the original post, which would skew a "most viewed" ranking.
+# metrics belong to the original post, which would skew a "most liked" ranking.
 VACCINE_QUERY = (
     '(vaccine OR vaccines OR vaccinated OR vaccination OR vax OR vaxxed '
-    'OR antivax OR "covid vaccine" OR "flu shot") -is:retweet lang:en'
+    'OR antivax OR "covid vaccine" OR "flu shot" OR immunization OR immunisation) '
+    '-is:retweet lang:en'
 )
+
+# An HPV term AND a vaccine term, so posts about the virus or about cervical
+# cancer screening don't come through — only posts about the vaccine do. The
+# brand names and #HPVvaccine sit outside that pairing because they already
+# name a vaccine on their own, and a hashtag is one token: the bare keyword
+# HPV does not match #HPVvaccine.
+# VACCINE_QUERY = (
+#     '(((HPV OR papillomavirus OR "papilloma virus") '
+#     '(vaccine OR vaccines OR vaccinated OR vaccination OR vax OR vaxxed '
+#     'OR jab OR shot OR immunization OR immunisation)) '
+#     'OR gardasil OR cervarix OR #HPVvaccine OR "cervical cancer vaccine") '
+#     '-is:retweet lang:en'
+# )
 
 # The API caps a single page at 100.
 MAX_PAGE = 100
@@ -73,6 +92,12 @@ def _get(url: str, timeout: int = 30) -> dict:
         detail = e.read().decode("utf-8", "replace")[:400]
         if e.code == 401:
             raise XAPIError("401 Unauthorized - the bearer token is wrong or revoked.") from e
+        if e.code == 402:
+            raise XAPIError(
+                "402 Payment Required - the token is valid, but this X API account "
+                "has no credits left. Top up or pick a plan at developer.x.com. No "
+                "endpoint works until then, counts included."
+            ) from e
         if e.code == 403:
             raise XAPIError(
                 "403 Forbidden - the token is valid but this project can't use recent "
@@ -100,8 +125,10 @@ def _window_start(days: int = 7) -> str:
 
 
 def search_recent(query: str = VACCINE_QUERY, pool: int = MAX_PAGE, days: int = 7) -> list[dict]:
-    """Pull up to `pool` recent posts matching `query`, newest first.
+    """Pull up to `pool` posts matching `query` from the last `days` days.
 
+    Ordered by the API's own relevance ranking, not by time, and not by any
+    engagement metric - see `fetch_top_vaccine_posts` for the local ranking.
     Pages through the API in chunks of 100 as needed. Returns normalised dicts in
     the same shape as x_post_fetcher.fetch_post, so XPost.from_fetch works on them.
     """
@@ -115,7 +142,14 @@ def search_recent(query: str = VACCINE_QUERY, pool: int = MAX_PAGE, days: int = 
             "query": query,
             "max_results": str(max(10, want)),
             "start_time": _window_start(days),
-            "sort_order": "recency",
+            # relevancy, not recency: X's relevance ranking factors in engagement,
+            # so the pool we pay for skews towards the high-engagement posts this
+            # module is looking for, instead of whatever happened to be posted in
+            # the last few hours. That biases the pool, which would disqualify it
+            # as a sample for the sentiment/misinformation models - their training
+            # corpora under data/ are keyword-and-time sampled - but this path is
+            # presentational, so the bias is the point.
+            "sort_order": "relevancy",
             "tweet.fields": ("created_at,public_metrics,lang,author_id,possibly_sensitive,"
                              "referenced_tweets,in_reply_to_user_id,attachments"),
             "expansions": "author_id,in_reply_to_user_id,attachments.media_keys",
@@ -142,6 +176,24 @@ def search_recent(query: str = VACCINE_QUERY, pool: int = MAX_PAGE, days: int = 
             break
 
     return collected[:pool]
+
+
+def count_recent(query: str = VACCINE_QUERY, days: int = 7) -> int:
+    """How many posts match `query` in the window.
+
+    Returns counts, not posts, so the per-post billing that makes `search_recent`
+    cost money does not apply - though the account still needs credits at all, or
+    every endpoint 402s. Worth calling before a paid run: it says what fraction of
+    the week a given `pool` covers, i.e. whether a "top 10" is the real top 10 or
+    just the top 10 of a sample.
+    """
+    params = {
+        "query": query,
+        "start_time": _window_start(days),
+        "granularity": "day",
+    }
+    data = _get(COUNTS_URL + "?" + urllib.parse.urlencode(params))
+    return (data.get("meta") or {}).get("total_tweet_count", 0)
 
 
 def _normalise(raw: dict, users: dict, media: dict) -> dict:
@@ -198,22 +250,165 @@ def _normalise(raw: dict, users: dict, media: dict) -> dict:
     }
 
 
-def fetch_top_vaccine_posts(limit: int = 10, pool: int = MAX_PAGE,
-                            query: str = VACCINE_QUERY, days: int = 7) -> list[dict]:
-    """The `limit` most-viewed vaccine posts from the last `days` days.
+def _score(post: dict, metric: str):
+    """Sort key for one post: (has a value, the value).
 
-    `pool` is how many recent posts to rank. Raising it gives a more representative
-    top-10 and costs proportionally more, since billing is per post returned.
-    Posts with no view count sort last rather than being treated as zero.
+    The leading bool keeps posts with a missing count at the bottom instead of
+    letting them tie with a genuine zero.
     """
-    posts = search_recent(query=query, pool=pool, days=days)
-    posts.sort(key=lambda p: (p["views"] is not None, p["views"] or 0), reverse=True)
-    return posts[:limit]
+    if metric == "likes":
+        value = post["likes"]
+    elif metric == "engagement":
+        parts = [post["likes"], post["reposts"], post["replies"], post["quotes"]]
+        value = sum(p for p in parts if p is not None) if any(
+            p is not None for p in parts) else None
+    else:
+        raise ValueError("metric must be 'likes' or 'engagement', not %r" % metric)
+    return (value is not None, value or 0)
+
+
+def rank_posts(posts: list[dict], metric: str = "likes") -> list[dict]:
+    """The whole pool, most-engaged first.
+
+    Kept separate from `fetch_top_vaccine_posts` so a caller that paid for a pool
+    can hold on to all of it - the CLI saves the full ranked list to JSON and only
+    prints the head of it.
+    """
+    return sorted(posts, key=lambda p: _score(p, metric), reverse=True)
+
+
+def fetch_top_vaccine_posts(limit: int = 10, pool: int = MAX_PAGE,
+                            query: str = VACCINE_QUERY, days: int = 7,
+                            metric: str = "likes") -> list[dict]:
+    """The `limit` most-engaged vaccine posts *of the pool this fetches*.
+
+    Not the most-engaged on X. The API cannot sort by engagement, so this ranks a
+    pool that `search_recent` chose by relevance. Against a broad query that pool
+    is a fraction of a percent of what actually matches - `count_recent()` will
+    tell you what fraction - so treat the result as notable posts rather than a
+    definitive top-10. Raising `pool` narrows the gap and costs proportionally
+    more, since billing is per post returned.
+
+    `metric` picks what "engaged" means: "likes" (the default) ranks on likes
+    alone, "engagement" on likes + reposts + replies + quotes. Posts missing that
+    count sort last rather than being treated as zero.
+    """
+    return rank_posts(search_recent(query=query, pool=pool, days=days), metric)[:limit]
+
+
+USAGE = """usage: x_api_search.py [--count] [--engagement] [--out PATH] [pool]
+
+  --count       print how many posts match this week, then exit. Returns no
+                posts, so it is not billed per post. Worth running first.
+  --engagement  rank by likes + reposts + replies + quotes instead of likes.
+  --out PATH    where to save the run (default: x_posts_<timestamp>.json).
+  pool          how many posts to fetch and rank (default 100, ~$0.005 each).
+"""
+
+
+def _pct(part: int, whole: int) -> str:
+    """Percentage that stays informative when it is tiny.
+
+    A pool of 100 against 104,220 matches is 0.096%, which "%.0f%%" renders as
+    "0%" - a number that reads like a broken calculation rather than a fact about
+    coverage.
+    """
+    if not whole:
+        return "n/a"
+    if not part:
+        return "0%"
+    p = 100.0 * part / whole
+    if p >= 10:
+        return "%.0f%%" % p
+    if p >= 1:
+        return "%.1f%%" % p
+    if p >= 0.01:
+        return "%.2f%%" % p
+    return "<0.01%"
+
+
+def _coverage_note(ranked: int, total: int) -> str:
+    """What the week's volume says about the list we just printed.
+
+    `ranked` is how many posts actually came back, not how many were asked for -
+    the API can return fewer, and the claim has to match what was really seen.
+    """
+    if ranked >= total:
+        return ("ranked every one of the %s posts matching in the last 7 days - "
+                "so this really is the top 10" % "{:,}".format(total))
+    return ("ranked %d of the %s posts matching in the last 7 days (%s), picked by "
+            "X's relevance ranking, which favours engagement - so these are notable "
+            "posts, not the week's definitive top 10"
+            % (ranked, "{:,}".format(total), _pct(ranked, total)))
+
+
+def save_run(path: str, posts: list[dict], metric: str, pool: int,
+             total: int | None, query: str = VACCINE_QUERY, days: int = 7) -> str:
+    """Write the ranked pool plus the metadata describing how it was gathered.
+
+    The metadata is the point: a bare list of posts a month from now says nothing
+    about which query found it, how much of the week it covers, or what "top" was
+    measured on. `posts` stay in the `_normalise` shape, so `XPost.from_fetch`
+    accepts them straight back out of the file.
+    """
+    run = {
+        "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "query": query,
+        "window_days": days,
+        "window_start": _window_start(days),
+        "metric": metric,
+        "sort_order": "relevancy",
+        "pool_requested": pool,
+        "pool_returned": len(posts),
+        "total_matching": total,
+        "coverage": _pct(len(posts), total) if total else None,
+        "coverage_note": _coverage_note(len(posts), total) if total else None,
+        "posts": posts,
+    }
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(run, fh, ensure_ascii=False, indent=2)
+    return path
+
+
+def _default_out() -> str:
+    """A timestamped filename that never lands on an existing file.
+
+    The stamp is per-second, so two runs in the same second would collide - and
+    each of these files is a run someone was billed for, so silently overwriting
+    one is worse than an ugly suffix.
+    """
+    base = datetime.now(timezone.utc).strftime("x_posts_%Y%m%d-%H%M%S")
+    path, n = base + ".json", 2
+    while os.path.exists(path):
+        path, n = "%s-%d.json" % (base, n), n + 1
+    return path
 
 
 def main(argv=None) -> int:
     argv = sys.argv[1:] if argv is None else argv
-    pool = int(argv[0]) if argv else MAX_PAGE
+
+    if "-h" in argv or "--help" in argv:
+        print(USAGE)
+        return 0
+
+    count_only = "--count" in argv
+    metric = "engagement" if "--engagement" in argv else "likes"
+
+    out = None
+    if "--out" in argv:
+        k = argv.index("--out")
+        if k + 1 >= len(argv):
+            print(USAGE, file=sys.stderr)
+            return 2
+        out = argv[k + 1]
+        argv = argv[:k] + argv[k + 2:]
+
+    positional = [a for a in argv if not a.startswith("-")]
+    try:
+        pool = int(positional[0]) if positional else MAX_PAGE
+    except ValueError:
+        print(USAGE, file=sys.stderr)
+        return 2
 
     try:
         from dotenv import load_dotenv
@@ -221,22 +416,52 @@ def main(argv=None) -> int:
     except ImportError:
         pass
 
+    # Not billed per post, so always worth asking: this is what tells us how much
+    # of the week the list below actually speaks for.
+    total = None
     try:
-        posts = fetch_top_vaccine_posts(limit=10, pool=pool)
+        total = count_recent()
+    except XAPIError as e:
+        if count_only:
+            print("error: %s" % e, file=sys.stderr)
+            return 1
+        print("warning: could not count the week's posts: %s" % e, file=sys.stderr)
+
+    if count_only:
+        print("%s posts match in the last 7 days." % "{:,}".format(total))
+        if total:
+            print("A pool of %d would cover %s of them."
+                  % (pool, _pct(min(pool, total), total)))
+        return 0
+
+    try:
+        ranked = rank_posts(search_recent(pool=pool), metric)
     except XAPIError as e:
         print("error: %s" % e, file=sys.stderr)
         return 1
 
-    if not posts:
+    if not ranked:
         print("No matching posts in the last 7 days.", file=sys.stderr)
         return 1
 
-    for i, p in enumerate(posts, 1):
-        print("%2d. %-16s %10s views  %s" % (
-            i, "@" + (p["author_handle"] or "?"),
-            "{:,}".format(p["views"]) if p["views"] is not None else "n/a",
-            (p["text"] or "").replace("\n", " ")[:70]))
-    print("\n(ranked from a pool of %d recent posts)" % pool, file=sys.stderr)
+    print("10 notable vaccine posts from the last 7 days, by %s:" % metric,
+          file=sys.stderr)
+    for n, p in enumerate(ranked[:10], 1):
+        present, score = _score(p, metric)
+        print("%2d. %-16s %9s %-10s  %s" % (
+            n, "@" + (p["author_handle"] or "?"),
+            "{:,}".format(score) if present else "n/a", metric,
+            (p["text"] or "").replace("\n", " ")[:60]))
+
+    if total:
+        print("\n(%s)" % _coverage_note(len(ranked), total), file=sys.stderr)
+    else:
+        print("\n(ranked a pool of %d posts)" % pool, file=sys.stderr)
+
+    # Save every post we paid for, not just the ten shown.
+    path = save_run(out or _default_out(), ranked, metric, pool, total)
+    print("saved %d posts + run metadata to %s" % (len(ranked), path),
+          file=sys.stderr)
     return 0
 
 

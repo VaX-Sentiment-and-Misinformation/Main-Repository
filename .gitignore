@@ -22,6 +22,9 @@ ENV/
 # scraper run artefacts (checked-in datasets under data/ are unaffected)
 failed_ids.txt
 
+# paid X API run output - each file is a run someone was billed for
+x_posts_*.json
+
 # OS
 .DS_Store
 Thumbs.db
