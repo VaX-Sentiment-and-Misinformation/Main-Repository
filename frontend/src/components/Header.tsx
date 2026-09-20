@@ -55,7 +55,6 @@ export default function Header() {
           </svg>
         </span>
         <span style={{ fontWeight: 800, fontSize: 21, letterSpacing: "-.03em", color: "#12181F" }}>VaX</span>
-        <span style={{ fontSize: 13, color: "#7C8894", fontWeight: 500 }}>Vaccine discourse monitor</span>
       </Link>
 
       <nav style={{ display: "flex", gap: 4, alignItems: "center", background: "#E4EAEE", padding: 4, borderRadius: 14 }}>
@@ -66,14 +65,6 @@ export default function Header() {
           Trends
         </Link>
       </nav>
-
-      <button
-        type="button"
-        className="vx-btn-dark"
-        style={{ border: 0, color: "#fff", fontWeight: 600, fontSize: 14, padding: "10px 20px", borderRadius: 14, flex: "none" }}
-      >
-        Sign in
-      </button>
     </header>
   );
 }

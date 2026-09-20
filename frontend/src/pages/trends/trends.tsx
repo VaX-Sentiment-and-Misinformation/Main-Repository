@@ -1,4 +1,5 @@
 import Link from "next/link";
+import SentimentTrendChart, { SentimentByVaccine } from "@/components/SentimentTrendChart";
 import { BADGE } from "@/lib/badges";
 import { POSTS, TIME_WINDOW_LOWER, TOPICS, topicDeltaColor } from "@/lib/mockData";
 
@@ -9,6 +10,14 @@ export default function Trends() {
       <p style={{ color: "#6B7684", fontSize: 17, fontWeight: 500, margin: "0 0 34px" }}>
         What the vaccine conversation is doing on X right now, over the {TIME_WINDOW_LOWER}.
       </p>
+
+      <section style={{ marginBottom: 34 }}>
+        <h2 style={sectionLabel}>Sentiment over time</h2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <SentimentTrendChart />
+          <SentimentByVaccine />
+        </div>
+      </section>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))", gap: 20, alignItems: "start" }}>
         <section>

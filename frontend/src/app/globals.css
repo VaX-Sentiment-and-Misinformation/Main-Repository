@@ -60,13 +60,6 @@ a:focus-visible {
   text-wrap: pretty;
 }
 
-.vx-btn-dark {
-  background: #12181f;
-}
-.vx-btn-dark:hover {
-  background: #2a3440;
-}
-
 .vx-btn-brand {
   background: #0fa97f;
 }
