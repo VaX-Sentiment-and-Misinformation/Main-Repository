@@ -80,7 +80,13 @@ def _bearer_token() -> str:
     return token
 
 
-def _get(url: str, timeout: int = 30) -> dict:
+def _get(url: str, timeout: int = 30, endpoint: str = "recent search") -> dict:
+    """GET a v2 endpoint and decode it, turning HTTP errors into XAPIError.
+
+    `endpoint` only names the caller in the 403 message - a 403 means the token
+    is fine but the account is not entitled to that particular endpoint, so the
+    message is useless unless it says which one.
+    """
     req = urllib.request.Request(url, headers={
         "Authorization": "Bearer %s" % _bearer_token(),
         "User-Agent": "vax-sentiment-research/1.0",
@@ -100,8 +106,9 @@ def _get(url: str, timeout: int = 30) -> dict:
             ) from e
         if e.code == 403:
             raise XAPIError(
-                "403 Forbidden - the token is valid but this project can't use recent "
-                "search. Check the app's access level in the developer console. %s" % detail
+                "403 Forbidden - the token is valid but this account is not "
+                "entitled to %s. Check the access level in the developer "
+                "console. %s" % (endpoint, detail)
             ) from e
         if e.code == 429:
             raise XAPIError(

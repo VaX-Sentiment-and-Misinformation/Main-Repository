@@ -24,6 +24,8 @@ failed_ids.txt
 
 # paid X API run output - each file is a run someone was billed for
 x_posts_*.json
+x_hist_*.json
+apify_vax_*.json
 
 # OS
 .DS_Store
