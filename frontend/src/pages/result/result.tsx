@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { DEFAULT_QUERY } from "@/lib/mockData";
+import type { SentimentAnalysis, SentimentLabel } from "@/lib/api";
 
 interface ResultProps {
-  query?: string;
+  query: string;
+  sentiment: SentimentAnalysis | null;
 }
 
-export default function Result({ query }: ResultProps) {
-  const displayQuery = query?.trim() || DEFAULT_QUERY;
-
+export default function Result({ query, sentiment }: ResultProps) {
   return (
     <main className="vx-rise" style={{ maxWidth: 1180, margin: "0 auto", padding: "36px 40px 0" }}>
       <Link href="/" style={{ fontSize: 14, fontWeight: 700, color: "#6B7684", marginBottom: 22, padding: 0, display: "inline-block" }}>
@@ -17,7 +16,7 @@ export default function Result({ query }: ResultProps) {
       <div style={{ marginBottom: 22 }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: "#8A95A1", marginBottom: 10 }}>Analysed claim</div>
         <h1 className="vx-text-pretty" style={{ fontSize: 38, fontWeight: 800, lineHeight: 1.12, letterSpacing: "-.03em", margin: 0 }}>
-          {displayQuery}
+          {query}
         </h1>
       </div>
 
@@ -64,23 +63,7 @@ export default function Result({ query }: ResultProps) {
           </div>
         </div>
 
-        <div style={card}>
-          <h2 style={{ ...cardTitle, marginBottom: 20 }}>In support of vaccines?</h2>
-          <div style={{ display: "flex", gap: 4, height: 40, marginBottom: 20 }}>
-            <div style={{ width: "31%", background: "#0FA97F", borderRadius: 999 }}></div>
-            <div style={{ width: "24%", background: "#C3CCD5", borderRadius: 999 }}></div>
-            <div style={{ width: "45%", background: "#F0603F", borderRadius: 999 }}></div>
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-            <SentimentRow color="#0FA97F" label="Supportive of vaccination" pct="31%" count="5,708 posts" />
-            <SentimentRow color="#C3CCD5" label="Neutral or asking questions" pct="24%" count="4,419 posts" />
-            <SentimentRow color="#F0603F" label="Opposed to vaccination" pct="45%" count="8,285 posts" />
-          </div>
-          <p style={{ fontSize: 13, color: "#9AA5B1", fontWeight: 500, margin: "20px 0 0", lineHeight: 1.5 }}>
-            Sentiment is measured toward vaccination itself, not toward the claim. Posts quoting the claim to debunk it count as
-            supportive.
-          </p>
-        </div>
+        <SentimentCard analysis={sentiment} />
       </section>
     </main>
   );
@@ -88,6 +71,67 @@ export default function Result({ query }: ResultProps) {
 
 const card = { background: "#fff", borderRadius: 24, padding: 28, boxShadow: "0 3px 14px rgba(18,24,31,.06)" } as const;
 const cardTitle = { fontSize: 19, fontWeight: 800, letterSpacing: "-.02em", margin: 0 } as const;
+const footnote = { fontSize: 13, color: "#9AA5B1", fontWeight: 500, margin: "20px 0 0", lineHeight: 1.5 } as const;
+
+const SENTIMENT_ROWS: { key: SentimentLabel; color: string; label: string }[] = [
+  { key: "positive", color: "#0FA97F", label: "Supportive of vaccination" },
+  { key: "neutral", color: "#C3CCD5", label: "Neutral or asking questions" },
+  { key: "negative", color: "#F0603F", label: "Opposed to vaccination" },
+];
+
+function posts(n: number) {
+  return `${n.toLocaleString("en-US")} ${n === 1 ? "post" : "posts"}`;
+}
+
+function SentimentCard({ analysis }: { analysis: SentimentAnalysis | null }) {
+  const title = <h2 style={{ ...cardTitle, marginBottom: 20 }}>In support of vaccines?</h2>;
+
+  if (!analysis) {
+    return (
+      <div style={card}>
+        {title}
+        <p style={footnote}>Couldn&apos;t reach the analysis service. Check that the backend is running and try again.</p>
+      </div>
+    );
+  }
+  if (analysis.analysed === 0) {
+    return (
+      <div style={card}>
+        {title}
+        <p style={footnote}>No posts in our dataset discuss this claim yet. Try describing it in different words.</p>
+      </div>
+    );
+  }
+
+  const { sentiment, analysed, matched, source } = analysis;
+  return (
+    <div style={card}>
+      {title}
+      <div style={{ display: "flex", gap: 4, height: 40, marginBottom: 20 }}>
+        {SENTIMENT_ROWS.filter((r) => sentiment[r.key].count > 0).map((r) => (
+          <div key={r.key} style={{ flex: sentiment[r.key].count, background: r.color, borderRadius: 999 }}></div>
+        ))}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        {SENTIMENT_ROWS.map((r) => (
+          <SentimentRow
+            key={r.key}
+            color={r.color}
+            label={r.label}
+            pct={`${sentiment[r.key].pct}%`}
+            count={posts(sentiment[r.key].count)}
+          />
+        ))}
+      </div>
+      <p style={footnote}>
+        Based on {analysed === matched ? posts(matched) : `the ${analysed} most relevant of ${posts(matched)}`} discussing this
+        claim. Each post is classified by its stance on vaccination, not on the claim, so posts mocking the claim count as
+        supportive.
+        {source === "stored" && " Showing saved predictions while the live model is offline."}
+      </p>
+    </div>
+  );
+}
 
 function SentimentRow({ color, label, pct, count }: { color: string; label: string; pct: string; count: string }) {
   return (

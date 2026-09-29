@@ -2,7 +2,10 @@ from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from sentiment import router as sentiment_router
+
 app = FastAPI()
+app.include_router(sentiment_router)
 
 # Allow Next.js frontend to communicate with backend
 app.add_middleware(

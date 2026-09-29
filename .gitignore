@@ -39,3 +39,10 @@ venv/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python caches
+__pycache__/
+
+# trained model weights (too large for git; see backend/model_sentiment/train_sentiment_colab.ipynb)
+backend/model_sentiment/modernbert_*/
+backend/model_misinformation/savedModel/
