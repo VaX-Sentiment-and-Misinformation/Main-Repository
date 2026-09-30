@@ -205,9 +205,42 @@ class Pipeline(unittest.TestCase):
         fetch_monthly.fetch_month("2026-08", "2026-08-01", "2026-09-01", 4)
         self.assertGreaterEqual(self.calls[0]["maxItems"], fetch_monthly.MIN_ITEMS)
 
+    def test_floor_overshoot_is_reported_not_hidden(self):
+        # --max-items 100 over 4 groups wants 25 each, but 50 is the Actor's
+        # minimum, so 200 are fetched and billed while 100 are kept. That cost
+        # the user real money before it was surfaced.
+        n = len(query_groups())
+        self.assertEqual(fetch_monthly.share_per_group(100, n),
+                         fetch_monthly.MIN_ITEMS)
+        self.assertEqual(fetch_monthly.effective_total(100, n),
+                         fetch_monthly.MIN_ITEMS * n)
+        warning = fetch_monthly._floor_warning(100, n)
+        self.assertIsNotNone(warning, "overshoot must be warned about")
+        self.assertIn(str(fetch_monthly.MIN_ITEMS * n), warning)
+
+    def test_no_warning_when_the_allocation_clears_the_floor(self):
+        n = len(query_groups())
+        self.assertIsNone(fetch_monthly._floor_warning(1000, n))
+        self.assertEqual(fetch_monthly.effective_total(1000, n), 1000)
+
+    def test_billed_counts_every_post_the_actor_returned(self):
+        # 3 kept after de-duplication, but 5 per group were returned and charged.
+        self.stub(lambda n: [item(i) for i in range(5)])
+        posts, stats = fetch_monthly.fetch_month(
+            "2026-08", "2026-08-01", "2026-09-01", 1000)
+        self.assertEqual(stats["billed"], 5 * len(query_groups()))
+        self.assertLess(len(posts), stats["billed"],
+                        "de-duplication should leave billed above kept here")
+        # every billed post must be accounted for, not silently missing
+        self.assertEqual(
+            stats["billed"],
+            stats["collected"] + stats["duplicates"] + stats["no_id"])
+        self.assertEqual(stats["duplicates"], 5 * (len(query_groups()) - 1))
+
     def test_posts_are_ranked_by_engagement_and_tagged(self):
         self.stub(lambda n: [item(n * 100 + i, likes=i * 3) for i in range(5)])
-        posts = fetch_monthly.fetch_month("2026-08", "2026-08-01", "2026-09-01", 1000)
+        posts, _ = fetch_monthly.fetch_month("2026-08", "2026-08-01",
+                                             "2026-09-01", 1000)
         scores = [engagement(p) for p in posts]
         self.assertEqual(scores, sorted(scores, reverse=True))
         self.assertEqual(posts[0]["month"], "2026-08")
@@ -216,7 +249,8 @@ class Pipeline(unittest.TestCase):
     def test_a_post_returned_by_two_groups_is_stored_once(self):
         # proquad is both MMR and chickenpox, so overlap is real, not theoretical.
         self.stub(lambda n: [item(77, text="proquad vaccine")])
-        posts = fetch_monthly.fetch_month("2026-08", "2026-08-01", "2026-09-01", 1000)
+        posts, _ = fetch_monthly.fetch_month("2026-08", "2026-08-01",
+                                             "2026-09-01", 1000)
         self.assertEqual(len(posts), 1)
         self.assertEqual(posts[0]["diseases"], ["chickenpox", "mmr"])
 
@@ -234,8 +268,13 @@ class Pipeline(unittest.TestCase):
             saved = json.load(fh)
 
         self.assertEqual(saved["month"], "2026-08")
-        self.assertEqual(saved["posts_returned"], len(saved["posts"]))
-        self.assertGreater(saved["posts_returned"], 0)
+        self.assertEqual(saved["posts_kept"], len(saved["posts"]))
+        self.assertGreater(saved["posts_kept"], 0)
+        # Cost must follow what the Actor returned, not what survived the cut.
+        self.assertGreaterEqual(saved["posts_billed"], saved["posts_kept"])
+        self.assertAlmostEqual(
+            saved["estimated_cost_usd"],
+            round(saved["posts_billed"] * fetch_monthly.COST_PER_POST, 4))
         self.assertEqual(len(saved["queries"]), len(query_groups()))
         self.assertEqual(saved["ranked_by"], "likes + reposts + replies + quotes")
         # The whole point of writing files: they load back into the database model.

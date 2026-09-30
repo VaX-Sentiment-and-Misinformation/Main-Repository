@@ -92,10 +92,41 @@ def actor_input(query: str, start: str, end: str, max_items: int) -> dict:
     }
 
 
+def share_per_group(max_items: int, n_groups: int) -> int:
+    """How many posts to request from each group.
+
+    The Actor refuses a request below MIN_ITEMS, so a small --max-items spread
+    over several groups gets floored upward and the run fetches MORE than asked
+    for: 100 over 4 groups wants 25 each, but 50 is the minimum, so 200 come back.
+    Billing is per post returned, so that overshoot is real money - which is why
+    effective_total() exists and the CLI warns about it rather than letting it be
+    discovered in the logs.
+    """
+    return max(MIN_ITEMS, max_items // n_groups)
+
+
+def effective_total(max_items: int, n_groups: int) -> int:
+    """Posts actually fetched and billed per month, floor included."""
+    return share_per_group(max_items, n_groups) * n_groups
+
+
 def fetch_month(label: str, start: str, end: str,
                 max_items: int = DEFAULT_MAX_ITEMS, on_poll=None,
-                on_group=None) -> list[dict]:
+                on_group=None) -> tuple[list[dict], int]:
     """One month's posts: fetched per disease group, normalised, tagged, ranked.
+
+    Returns (kept, stats). `stats` accounts for every post that was paid for, so
+    the difference between what was billed and what is on disk is never a mystery:
+
+        billed      posts the Actor returned - what you are charged for
+        duplicates  returned by a second group's query, stored once
+        no_id       returned without an id, unusable
+        collected   unique, usable posts
+        kept        collected, cut to max_items
+
+    Duplicates are expected, not a fault: a post about both MMR and chickenpox
+    can be in the top results of two different group queries, and X charges for
+    each copy.
 
     The nine diseases do not fit in one query (see diseases.query_groups), so this
     is one Actor run per group with the month's allocation split evenly between
@@ -111,18 +142,24 @@ def fetch_month(label: str, start: str, end: str,
     chickenpox), and a post matching two groups would otherwise appear twice.
     """
     groups = query_groups()
-    share = max(MIN_ITEMS, max_items // len(groups))
+    share = share_per_group(max_items, len(groups))
 
     posts: list[dict] = []
     seen: set[str] = set()
+    stats = {"billed": 0, "duplicates": 0, "no_id": 0}
 
     for slugs, query in groups:
         if on_group:
             on_group(slugs, share)
         items = run_actor(actor_input(query, start, end, share), on_poll=on_poll)
+        stats["billed"] += len(items)
         for item in items:
             post = normalise(item)
-            if not post["id"] or post["id"] in seen:
+            if not post["id"]:
+                stats["no_id"] += 1
+                continue
+            if post["id"] in seen:
+                stats["duplicates"] += 1
                 continue
             seen.add(post["id"])
             post["month"] = label
@@ -130,7 +167,10 @@ def fetch_month(label: str, start: str, end: str,
             posts.append(post)
 
     posts.sort(key=engagement, reverse=True)
-    return posts[:max_items]
+    stats["collected"] = len(posts)
+    kept = posts[:max_items]
+    stats["kept"] = len(kept)
+    return kept, stats
 
 
 def out_path(out_dir: str, label: str) -> str:
@@ -138,8 +178,12 @@ def out_path(out_dir: str, label: str) -> str:
 
 
 def save_month(out_dir: str, label: str, start: str, end: str,
-               posts: list[dict], max_items: int) -> str:
-    """Write one month, with the metadata needed to interpret it later."""
+               posts: list[dict], max_items: int, stats: dict) -> str:
+    """Write one month, with the metadata needed to interpret it later.
+
+    The `stats` from fetch_month go in verbatim, so anyone opening the file can
+    reconcile what was paid for against what is in it without re-deriving it.
+    """
     run = {
         "fetched_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "source": "apify/apidojo~tweet-scraper",
@@ -152,9 +196,17 @@ def save_month(out_dir: str, label: str, start: str, end: str,
         "sort_requested": "Top",
         "ranked_by": "likes + reposts + replies + quotes",
         "max_items": max_items,
-        "posts_returned": len(posts),
-        "estimated_cost_usd": round(len(posts) * COST_PER_POST, 4),
-        # Overlapping counts: these sum to more than posts_returned, because a
+        "requested_per_group": share_per_group(max_items, len(query_groups())),
+        # Accounts for every post paid for: billed = kept + duplicates + no_id
+        # + anything cut past max_items. A post matching two group queries is
+        # returned - and charged - twice, but stored once.
+        "posts_billed": stats["billed"],
+        "posts_duplicate": stats["duplicates"],
+        "posts_without_id": stats["no_id"],
+        "posts_collected": stats["collected"],
+        "posts_kept": len(posts),
+        "estimated_cost_usd": round(stats["billed"] * COST_PER_POST, 4),
+        # Overlapping counts: these sum to more than posts_kept, because a
         # post mentioning two diseases is counted under both.
         "disease_counts": tag_counts(posts),
         "untagged": sum(1 for p in posts if not p["diseases"]),
@@ -192,10 +244,28 @@ def _parse_args(argv):
     return p.parse_args(argv)
 
 
+def _floor_warning(max_items: int, n_groups: int) -> str | None:
+    """Warn when the Actor's per-request minimum makes us overshoot max_items.
+
+    Silent overshoot is money: --max-items 100 across 4 groups requests 50 each
+    because 25 is below the floor, so 200 posts are fetched and charged for while
+    only 100 are kept.
+    """
+    per_month = effective_total(max_items, n_groups)
+    if per_month <= max_items:
+        return None
+    return ("--max-items %d over %d groups is %d each, below the Actor's %d "
+            "minimum, so each group is asked for %d: %d posts fetched and billed "
+            "per month, %d kept. Use --max-items %d or more to stop overshooting."
+            % (max_items, n_groups, max_items // n_groups, MIN_ITEMS,
+               share_per_group(max_items, n_groups), per_month, max_items,
+               MIN_ITEMS * n_groups))
+
+
 def _dry_run(windows, max_items) -> int:
     groups = query_groups()
-    share = max(MIN_ITEMS, max_items // len(groups))
-    billed = len(windows) * share * len(groups)
+    share = share_per_group(max_items, len(groups))
+    billed = len(windows) * effective_total(max_items, len(groups))
 
     print("All nine in one query would be %d chars - over X's 512-char limit, "
           "which returns zero" % len(combined_query()))
@@ -215,10 +285,14 @@ def _dry_run(windows, max_items) -> int:
     for label, start, end in windows:
         print("  %-9s %s -> %s" % (label, start, end))
     print()
-    print("Plan: %d months x %d groups = %d runs, %d posts each = ~%d posts, "
-          "about $%.2f."
+    print("Plan: %d months x %d groups = %d runs, %d posts each = ~%d posts "
+          "billed, about $%.2f."
           % (len(windows), len(groups), len(windows) * len(groups), share,
              billed, billed * COST_PER_POST))
+    warning = _floor_warning(max_items, len(groups))
+    if warning:
+        print()
+        print("WARNING: %s" % warning)
     return 0
 
 
@@ -297,7 +371,15 @@ def main(argv=None) -> int:
     if args.out_dir != "." and not os.path.isdir(args.out_dir):
         os.makedirs(args.out_dir, exist_ok=True)
 
-    total = 0
+    # Say this before spending, not after: the floor can make the run fetch more
+    # than --max-items asked for, and every extra post is charged.
+    warning = _floor_warning(args.max_items, len(query_groups()))
+    if warning:
+        print("warning: %s" % warning, file=sys.stderr)
+        print(file=sys.stderr)
+
+    total_kept = 0
+    total_billed = 0
     for label, start, end in windows:
         path = out_path(args.out_dir, label)
         # This is paid data. A rerun after a failure partway through must not
@@ -317,22 +399,37 @@ def main(argv=None) -> int:
                   file=sys.stderr)
 
         try:
-            posts = fetch_month(label, start, end, args.max_items,
-                                on_poll=on_poll, on_group=on_group)
+            posts, stats = fetch_month(label, start, end, args.max_items,
+                                       on_poll=on_poll, on_group=on_group)
         except ApifyError as e:
             print("error: %s" % e, file=sys.stderr)
-            if total:
-                print("stopped after %d posts (about $%.2f)."
-                      % (total, total * COST_PER_POST), file=sys.stderr)
+            if total_billed:
+                print("stopped after %d posts billed (about $%.2f)."
+                      % (total_billed, total_billed * COST_PER_POST),
+                      file=sys.stderr)
             return 1
 
-        total += len(posts)
-        saved = save_month(args.out_dir, label, start, end, posts, args.max_items)
+        total_kept += len(posts)
+        total_billed += stats["billed"]
+        saved = save_month(args.out_dir, label, start, end, posts,
+                           args.max_items, stats)
         tagged = sum(1 for p in posts if p["diseases"])
-        print("  -> %d posts (%d tagged), saved to %s"
-              % (len(posts), tagged, saved), file=sys.stderr)
+        # Name the duplicates rather than leaving a silent gap between the two
+        # numbers - that gap is the first thing anyone asks about.
+        gap = ""
+        if stats["duplicates"] or stats["no_id"]:
+            parts = []
+            if stats["duplicates"]:
+                parts.append("%d dup" % stats["duplicates"])
+            if stats["no_id"]:
+                parts.append("%d no id" % stats["no_id"])
+            gap = ", %s" % ", ".join(parts)
+        print("  -> %d kept of %d billed (%d tagged%s), saved to %s"
+              % (len(posts), stats["billed"], tagged, gap, saved), file=sys.stderr)
 
-    print("\nDone. %d posts, about $%.2f." % (total, total * COST_PER_POST),
+    print(file=sys.stderr)
+    print("Done. %d posts kept, %d billed, about $%.2f."
+          % (total_kept, total_billed, total_billed * COST_PER_POST),
           file=sys.stderr)
     return 0
 
