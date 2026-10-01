@@ -10,6 +10,8 @@ import os
 import httpx
 from fastapi import APIRouter, HTTPException, Query
 
+from validators import InputValidationError, classify_input
+
 log = logging.getLogger(__name__)
 
 SENTIMENT_MODEL_URL = os.getenv("SENTIMENT_MODEL_URL", "http://localhost:8001/predict")
@@ -18,7 +20,15 @@ router = APIRouter()
 
 
 @router.get("/analyse/sentiment")
-async def analyse_sentiment(q: str = Query(min_length=1, max_length=4000)):
+async def analyse_sentiment(q: str = Query(min_length=1)):
+    try:
+        claim = classify_input(q)
+    except InputValidationError as err:
+        raise HTTPException(status_code=422, detail=str(err)) from err
+    if claim["type"] == "url":
+        # Fetching a post's text from its URL isn't supported yet
+        raise HTTPException(status_code=422, detail="Post URLs aren't supported yet; paste the post's text instead.")
+
     try:
         async with httpx.AsyncClient(timeout=60) as client:
             res = await client.post(SENTIMENT_MODEL_URL, json={"texts": [q]})
