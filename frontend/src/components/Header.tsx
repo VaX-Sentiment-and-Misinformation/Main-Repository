@@ -19,6 +19,7 @@ export default function Header() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const isTrends = pathname === "/trends";
+  const isInfo = pathname === "/info";
 
   return (
     <header
@@ -63,6 +64,9 @@ export default function Header() {
         </Link>
         <Link href="/trends" style={isTrends ? navOn : navOff}>
           Trends
+        </Link>
+        <Link href="/info" style={isInfo ? navOn : navOff}>
+          Info
         </Link>
       </nav>
     </header>

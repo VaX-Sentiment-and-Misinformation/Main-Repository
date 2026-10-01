@@ -99,3 +99,20 @@ a:focus-visible {
 .vx-ring {
   animation: vx-ring 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
+
+.vx-acc > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.vx-acc > summary::-webkit-details-marker {
+  display: none;
+}
+.vx-acc > summary .vx-chev {
+  transition: transform 0.15s ease;
+}
+.vx-acc[open] > summary .vx-chev {
+  transform: rotate(90deg);
+}
+.vx-acc > summary:hover {
+  color: #0fa97f;
+}
