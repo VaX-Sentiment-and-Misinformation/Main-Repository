@@ -46,12 +46,20 @@ SAMPLE = {
 }
 
 
-def item(i, text="covid vaccine rollout", likes=None):
+# Inside the 2026-08 window the Pipeline tests use. SAMPLE's own createdAt is from
+# 2023 and stays that way - it is the Actor's documented payload - but a post that
+# fetch_month is asked to file under 2026-08 has to be from 2026-08 or it is now
+# dropped as out-of-window, which is the point of the window check.
+IN_WINDOW = "Wed Aug 12 10:00:00 +0000 2026"
+
+
+def item(i, text="covid vaccine rollout", likes=None, created=IN_WINDOW):
     """One Actor-shaped item, varying only what the tests care about."""
     out = dict(SAMPLE)
     out.update(id=str(i), text=text,
                likeCount=i if likes is None else likes,
-               retweetCount=0, replyCount=0, quoteCount=0)
+               retweetCount=0, replyCount=0, quoteCount=0,
+               createdAt=created)
     return out
 
 
@@ -164,6 +172,23 @@ class Months(unittest.TestCase):
         self.assertEqual([m[0] for m in ms],
                          ["2024-11", "2024-12", "2025-01", "2025-02"])
 
+    def test_an_empty_current_month_is_dropped(self):
+        # Run on the 1st and the current month clamps to start == end. The Actor
+        # returns nothing for that, client.py calls an empty run an error, and the
+        # whole command would fail on its last month after paying for the rest.
+        ms = fetch_monthly.months(3, now=date(2026, 10, 1))
+        self.assertEqual([m[0] for m in ms], ["2026-08", "2026-09"])
+        for _label, start, end in ms:
+            self.assertLess(start, end)
+
+    def test_no_window_is_ever_empty(self):
+        for day in (1, 2, 15, 28):
+            for month in (1, 6, 12):
+                for _label, start, end in fetch_monthly.months(
+                        6, now=date(2026, month, day)):
+                    self.assertLess(start, end, "empty window at %04d-%02d-%02d"
+                                    % (2026, month, day))
+
 
 class Pipeline(unittest.TestCase):
     """Actor items in, ranked and tagged posts on disk, XPost out."""
@@ -193,12 +218,90 @@ class Pipeline(unittest.TestCase):
         fetch_monthly.fetch_month("2026-08", "2026-08-01", "2026-09-01", 200)
         self.assertEqual(
             sorted(self.calls[0]),
-            ["end", "maxItems", "searchTerms", "sort", "start", "tweetLanguage"])
-        self.assertEqual(self.calls[0]["sort"], "Top")
+            ["end", "maxItems", "minimumFavorites", "searchTerms", "sort",
+             "start", "tweetLanguage"])
         self.assertEqual(self.calls[0]["tweetLanguage"], "en")
         self.assertEqual(len(self.calls[0]["searchTerms"]), 1,
                          "one query per run - the Actor walks searchTerms "
                          "sequentially against one shared maxItems")
+
+    def test_sort_is_latest_because_top_ignores_the_date_window(self):
+        # The regression that cost $14.28: sort="Top" made X ignore until: and
+        # return currently-popular posts for every month asked for. Asserted by
+        # name so a future "but Top ranks by engagement" change has to confront
+        # this test and the history in the module docstring.
+        self.stub(lambda n: [item(n)])
+        fetch_monthly.fetch_month("2026-08", "2026-08-01", "2026-09-01", 200)
+        self.assertEqual(self.calls[0]["sort"], "Latest")
+        self.assertNotEqual(self.calls[0]["sort"], "Top")
+        self.assertEqual(fetch_monthly.SORT, "Latest")
+
+    def test_engagement_floor_is_sent_and_configurable(self):
+        self.stub(lambda n: [item(n)])
+        fetch_monthly.fetch_month("2026-08", "2026-08-01", "2026-09-01", 200)
+        self.assertEqual(self.calls[0]["minimumFavorites"],
+                         fetch_monthly.DEFAULT_MIN_FAVORITES)
+        self.calls.clear()
+        fetch_monthly.fetch_month("2026-08", "2026-08-01", "2026-09-01", 200,
+                                  min_favorites=500)
+        self.assertEqual(self.calls[0]["minimumFavorites"], 500)
+
+    def test_posts_outside_the_month_are_dropped_and_counted(self):
+        # Exactly the shape of the failure: the window says August 2026, X hands
+        # back February 2025. Those posts must not be filed under 2026-08.
+        def mixed(n):
+            return [item(n * 100 + 1),
+                    item(n * 100 + 2, created="Fri Feb 14 19:40:10 +0000 2025"),
+                    item(n * 100 + 3, created="Tue Sep 15 08:00:00 +0000 2026")]
+        self.stub(mixed)
+        posts, stats = fetch_monthly.fetch_month(
+            "2026-08", "2026-08-01", "2026-09-01", 1000)
+        groups = len(query_groups())
+        self.assertEqual(stats["out_of_window"], 2 * groups)
+        self.assertEqual(stats["in_window"], groups)
+        self.assertEqual(len(posts), groups)
+        self.assertEqual(stats["collected"],
+                         stats["in_window"] + stats["out_of_window"]
+                         + stats["undated"])
+        for post in posts:
+            self.assertEqual(fetch_monthly.created_on(post).month, 8)
+
+    def test_end_of_window_is_exclusive(self):
+        # months() tiles with an exclusive end, so the 1st of the next month
+        # belongs to the next file, not this one.
+        self.stub(lambda n: [item(n, created="Tue Sep 01 00:00:01 +0000 2026")])
+        posts, stats = fetch_monthly.fetch_month(
+            "2026-08", "2026-08-01", "2026-09-01", 1000)
+        self.assertEqual(posts, [])
+        self.assertEqual(stats["in_window"], 0)
+
+    def test_unparseable_date_is_dropped_not_filed(self):
+        self.stub(lambda n: [item(n, created="not a date")])
+        posts, stats = fetch_monthly.fetch_month(
+            "2026-08", "2026-08-01", "2026-09-01", 1000)
+        self.assertEqual(posts, [])
+        self.assertEqual(stats["undated"], len(query_groups()))
+
+    def test_coverage_reports_how_much_of_the_month_was_reached(self):
+        # sort="Latest" fills from the end of the window backwards, so posts
+        # bunched in the last days are the expected symptom of too low a floor.
+        tail = ["Sat Aug 29 10:00:00 +0000 2026", "Sun Aug 30 10:00:00 +0000 2026",
+                "Mon Aug 31 10:00:00 +0000 2026"]
+        self.stub(lambda n: [item(n * 100 + i, created=c)
+                             for i, c in enumerate(tail)])
+        _posts, stats = fetch_monthly.fetch_month(
+            "2026-08", "2026-08-01", "2026-09-01", 1000)
+        self.assertLess(stats["coverage"], fetch_monthly.MIN_WINDOW_COVERAGE)
+        self.assertEqual(stats["days_present"], 3)
+
+        self.calls.clear()
+        spread = ["Sat Aug 01 10:00:00 +0000 2026",
+                  "Mon Aug 31 10:00:00 +0000 2026"]
+        self.stub(lambda n: [item(n * 100 + i, created=c)
+                             for i, c in enumerate(spread)])
+        _posts, stats = fetch_monthly.fetch_month(
+            "2026-08", "2026-08-01", "2026-09-01", 1000)
+        self.assertEqual(stats["coverage"], 1.0)
 
     def test_minimum_item_floor_is_respected(self):
         self.stub(lambda n: [item(n)])
@@ -277,6 +380,14 @@ class Pipeline(unittest.TestCase):
             round(saved["posts_billed"] * fetch_monthly.COST_PER_POST, 4))
         self.assertEqual(len(saved["queries"]), len(query_groups()))
         self.assertEqual(saved["ranked_by"], "likes + reposts + replies + quotes")
+        # The audit a reader needs to trust the filename. Recorded, not implied.
+        self.assertEqual(saved["sort_requested"], "Latest")
+        self.assertEqual(saved["posts_out_of_window"], 0)
+        self.assertEqual(saved["posts_undated"], 0)
+        self.assertEqual(saved["posts_in_window"], saved["posts_kept"])
+        self.assertIn("window_coverage", saved)
+        self.assertEqual(saved["min_favorites"],
+                         fetch_monthly.DEFAULT_MIN_FAVORITES)
         # The whole point of writing files: they load back into the database model.
         XPost.from_fetch(saved["posts"][0])
 
@@ -352,6 +463,91 @@ class FailureModes(unittest.TestCase):
             fetch_monthly.main(["--month", "2026-08", "--max-items", "200",
                                 "--out-dir", self.dir, "--force"])
         self.assertTrue(calls, "--force did not re-fetch")
+
+    @staticmethod
+    def _saved_post(i, created):
+        """A post as fetch_month would have left it: normalised, tagged, filed."""
+        post = to_post(item(i, created=created))
+        post["month"] = "2026-08"
+        post["diseases"] = ["covid19"]
+        return post
+
+    def test_a_month_the_window_did_not_produce_is_not_written(self):
+        # The exact 2026-09 shape: ask for August, get September. Writing it would
+        # be worse than failing - a rerun skips months whose file exists, so the
+        # wrong month would survive every retry.
+        fetch_monthly.run_actor = lambda *a, **k: [
+            item(n, created="Tue Sep 15 08:00:00 +0000 2026") for n in range(5)]
+        with _quiet():
+            rc = fetch_monthly.main(["--month", "2026-08", "--max-items", "200",
+                                     "--out-dir", self.dir])
+        self.assertEqual(rc, 1, "a month X did not window must exit non-zero")
+        self.assertEqual(os.listdir(self.dir), [],
+                         "a wrong month was written and would be skipped forever")
+
+    def test_a_mostly_out_of_window_month_is_not_written(self):
+        # Partial leak: 1 in, 4 out. The window is being treated as a suggestion.
+        def mixed(*a, **k):
+            return ([item(1, created="Sat Aug 15 10:00:00 +0000 2026")]
+                    + [item(10 + n, created="Fri Feb 14 19:40:10 +0000 2025")
+                       for n in range(4)])
+        fetch_monthly.run_actor = mixed
+        with _quiet():
+            rc = fetch_monthly.main(["--month", "2026-08", "--max-items", "200",
+                                     "--out-dir", self.dir])
+        self.assertEqual(rc, 1)
+        self.assertEqual(os.listdir(self.dir), [])
+
+    def test_a_few_stray_posts_are_dropped_but_the_month_is_kept(self):
+        # Mostly good: strays are dropped, the month still saves. Being strict
+        # here would throw away a usable month over a handful of posts.
+        def mostly(*a, **k):
+            return ([item(n, created="Sat Aug %02d 10:00:00 +0000 2026" % (n + 1))
+                     for n in range(1, 9)]
+                    + [item(99, created="Fri Feb 14 19:40:10 +0000 2025")])
+        fetch_monthly.run_actor = mostly
+        with _quiet():
+            rc = fetch_monthly.main(["--month", "2026-08", "--max-items", "200",
+                                     "--out-dir", self.dir])
+        self.assertEqual(rc, 0)
+        with open(os.path.join(self.dir, "apify_vax_2026-08.json"),
+                  encoding="utf-8") as fh:
+            saved = json.load(fh)
+        self.assertEqual(saved["posts_out_of_window"], 1)
+        self.assertEqual(saved["posts_kept"], 8)
+        for post in saved["posts"]:
+            self.assertIn("Aug", post["created_at"])
+
+    def test_verify_flags_a_file_that_is_not_the_month_it_names(self):
+        # The audit for the 36 files already on disk. A rerun skips months whose
+        # file exists, so without this a wrong month is preserved forever.
+        good = os.path.join(self.dir, "apify_vax_2026-08.json")
+        fetch_monthly.save_month(
+            self.dir, "2026-08", "2026-08-01", "2026-09-01",
+            [self._saved_post(1, "Sat Aug 01 10:00:00 +0000 2026"),
+             self._saved_post(2, "Mon Aug 31 10:00:00 +0000 2026")],
+            200, {"billed": 2, "duplicates": 0, "no_id": 0, "collected": 2,
+                  "out_of_window": 0, "undated": 0, "in_window": 2,
+                  "coverage": 1.0, "days_present": 2})
+        self.assertTrue(os.path.exists(good))
+        with _quiet():
+            self.assertEqual(
+                fetch_monthly._verify(self.dir,
+                                      [("2026-08", "2026-08-01", "2026-09-01")]),
+                0)
+
+        # Now the real-world case: posts from the wrong year under 2026-08.
+        fetch_monthly.save_month(
+            self.dir, "2026-08", "2026-08-01", "2026-09-01",
+            [self._saved_post(3, "Fri Feb 14 19:40:10 +0000 2025")],
+            200, {"billed": 1, "duplicates": 0, "no_id": 0, "collected": 1,
+                  "out_of_window": 0, "undated": 0, "in_window": 1,
+                  "coverage": 1.0, "days_present": 1})
+        with _quiet():
+            self.assertEqual(
+                fetch_monthly._verify(self.dir,
+                                      [("2026-08", "2026-08-01", "2026-09-01")]),
+                1, "a file full of the wrong month must fail the audit")
 
     def test_missing_token_says_where_to_get_one(self):
         old = os.environ.pop("APIFY_TOKEN", None)

@@ -24,9 +24,18 @@ __all__ = ["DISEASES", "VACCINE_TERMS", "QUERY_BUDGET", "X_QUERY_LIMIT",
 # build a query that exceeds it rather than letting one be sent.
 X_QUERY_LIMIT = 512
 
-# Apify appends " lang:en since:YYYY-MM-DD until:YYYY-MM-DD" to whatever we send,
-# which counts against the limit above.
-APPENDED_CHARS = 42
+# Apify appends its own operators to whatever we send, and they count against the
+# limit above. Observed in a real run log:
+#
+#     " lang:en since:2023-10-01 until:2023-11-01"          42 chars
+#
+# plus, since the engagement floor was added, an assumed " min_faves:<n>" of up to
+# 16 more. Whether the Actor expresses minimumFavorites as a query operator or as
+# a separate parameter is NOT confirmed, so the budget assumes the expensive case.
+# The first paid run settles it for free: the Actor logs the exact query it sent
+# ("Got N results for <query>"), so read the log and drop this back to 42 if
+# min_faves: is absent.
+APPENDED_CHARS = 58
 
 # Measured against the live Actor, September 2026:
 #     382 chars (424 sent) -> 20 results
@@ -36,8 +45,13 @@ APPENDED_CHARS = 42
 # groups to respect it is free: Apify bills per tweet returned, not per run, so
 # four groups of 250 cost exactly what three groups of 333 do.
 #
+# 366, not 382, because what was proven is the 424 chars that went over the wire.
+# APPENDED_CHARS grew from 42 to 58 when the engagement floor was added, so the
+# budget drops by the same 16 to keep the sent length at or under 424. The longest
+# group is 356 chars, so nothing regroups as a result.
+#
 # Do not raise this without new measurements. The failure it prevents is silent.
-QUERY_BUDGET = 382
+QUERY_BUDGET = 366
 
 # Shared across every disease, so the combined query factors it out instead of
 # repeating this list nine times.
@@ -145,7 +159,7 @@ def query_groups(budget: int = QUERY_BUDGET) -> list[tuple[list[str], str]]:
     All nine in one query comes to 886 characters, which X answers with zero
     results rather than an error - the failure this function exists to avoid.
     Greedily packs diseases into a group until adding the next would overflow,
-    giving three groups at the default budget.
+    giving four groups at the default budget.
 
     The cost of splitting is that VACCINE_TERMS (133 chars) repeats in every
     group. That is why the groups are packed rather than one-disease-per-query.

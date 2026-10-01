@@ -2,11 +2,16 @@
 
 The official X full-archive endpoint used by x_historical_search.py needs a
 Self-serve or Enterprise entitlement this project does not have, and costs $5.00
-per 1,000 posts. The Apify apidojo/tweet-scraper Actor needs only a token, costs
-$0.40 per 1,000, and can sort by engagement - which the official API cannot do at
-all.
+per 1,000 posts. The Apify apidojo/tweet-scraper Actor needs only a token and
+costs $0.40 per 1,000.
+
+Engagement selection comes from the Actor's minimumFavorites field, not from
+sort="Top": X's Top tab ignores `until:`, which cost this project one worthless
+$14.28 corpus. fetch_monthly's module docstring has the full account - read it
+before changing `sort`.
 
     python -m apify.fetch_monthly --dry-run
+    python -m apify.fetch_monthly --verify
 
 Posts come out in the same normalised dict shape as every other source in this
 backend, so XPost.from_fetch accepts them unchanged.
