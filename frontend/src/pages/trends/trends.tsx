@@ -1,5 +1,5 @@
 import Link from "next/link";
-import SentimentTrendChart, { SentimentByVaccine } from "@/components/SentimentTrendChart";
+import SentimentTrendChart, { SentimentByDisease } from "@/components/SentimentTrendChart";
 import { BADGE } from "@/lib/badges";
 import { POSTS, TIME_WINDOW_LOWER, TOPICS, topicDeltaColor } from "@/lib/mockData";
 
@@ -14,8 +14,8 @@ export default function Trends() {
       <section style={{ marginBottom: 34 }}>
         <h2 style={sectionLabel}>Sentiment over time</h2>
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-          <SentimentTrendChart />
-          <SentimentByVaccine />
+          <SentimentTrendChart view="monthly" />
+          <SentimentByDisease />
         </div>
       </section>
 

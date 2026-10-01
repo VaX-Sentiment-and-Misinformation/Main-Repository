@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, type CSSProperties } from "react";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import trend from "@/data/sentimentTrend.json";
 
 type Sentiment = "negative" | "neutral" | "positive";
-type Granularity = "weekly" | "monthly";
-type CategoryId = keyof typeof trend.series.weekly;
+type ViewId = "monthly" | "daily" | "quarterly";
+type CategoryId = keyof typeof trend.daily.series;
 
 interface Bucket {
   n: number;
@@ -29,36 +29,90 @@ const SERIES: { key: Sentiment; label: string; color: string }[] = [
   { key: "positive", label: "Positive", color: "#0FA97F" },
 ];
 
-const CATEGORIES = trend.categories as Category[];
-const SERIES_BY: Record<Granularity, Record<CategoryId, Period[]>> = trend.series;
-const MIN_N = trend.minBucketTweets;
+const MIN_N = trend.minBucketPosts;
 
 const plotted = (b: Bucket) => b.negative !== undefined;
-const plottedCount = (g: Granularity, c: CategoryId) => SERIES_BY[g][c].filter(plotted).length;
 
-const dayFmt = new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const dayFmt = new Intl.DateTimeFormat("en-AU", { weekday: "short", day: "numeric", timeZone: "UTC" });
+const fullDayFmt = new Intl.DateTimeFormat("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" });
+const dayMonthFmt = new Intl.DateTimeFormat("en-AU", { day: "numeric", month: "short", timeZone: "UTC" });
+const monthYearFmt = new Intl.DateTimeFormat("en-AU", { month: "short", year: "numeric", timeZone: "UTC" });
 const monthFmt = new Intl.DateTimeFormat("en-AU", { month: "short", timeZone: "UTC" });
-const monthYearFmt = new Intl.DateTimeFormat("en-AU", { month: "long", year: "numeric", timeZone: "UTC" });
+const fullMonthFmt = new Intl.DateTimeFormat("en-AU", { month: "long", year: "numeric", timeZone: "UTC" });
+const toMonth = (month: string) => toDate(`${month}-01`);
 
-const toDate = (period: string) => new Date(`${period}T00:00:00Z`);
-const periodTitle = (g: Granularity, period: string) =>
-  g === "weekly" ? `Week of ${dayFmt.format(toDate(period))}` : monthYearFmt.format(toDate(period));
+// Three years of months is too many labels: tick each quarter, with the year on
+// January and on the first month.
+const monthTick = (month: string, index: number) => {
+  const d = toMonth(month);
+  if (d.getUTCMonth() % 3 !== 0 && index !== 0) return "";
+  return d.getUTCMonth() === 0 || index === 0 ? monthYearFmt.format(d) : monthFmt.format(d);
+};
+const toDate = (day: string) => new Date(`${day}T00:00:00Z`);
 
-// Label the first week of each month, skipping any label within 3 bars of the previous
-// one so a partial first month doesn't collide with the next. Years are in the subtitle.
-const WEEK_TICKS = (() => {
-  const weeks = SERIES_BY.weekly.all;
-  const labels = new Map<string, string>();
-  let lastIndex = -Infinity;
-  weeks.forEach((w, i) => {
-    const d = toDate(w.period);
-    if (i > 0 && toDate(weeks[i - 1].period).getUTCMonth() === d.getUTCMonth()) return;
-    if (i - lastIndex < 3) labels.delete(weeks[lastIndex].period);
-    labels.set(w.period, monthFmt.format(d));
-    lastIndex = i;
-  });
-  return labels;
-})();
+const QUARTER_MONTHS = ["Jan–Mar", "Apr–Jun", "Jul–Sep", "Oct–Dec"];
+const qYear = (period: string) => Number(period.slice(0, 4));
+const qNum = (period: string) => Number(period.slice(-1));
+
+interface View {
+  // Lines read better than 36 near-identical stacked bars; few periods stay as bars
+  chart: "bar" | "line";
+  categories: Category[];
+  series: Record<CategoryId, Period[]>;
+  start: string;
+  end: string;
+  unit: string;
+  tick: (period: string, index: number) => string;
+  periodTitle: (period: string) => string;
+  firstHeader: string;
+  title: (subject: string) => string;
+  subtitle: (n: number) => string;
+  footnote: string;
+}
+
+// monthly follows the scrape each post came from. daily and quarterly follow when
+// posts were written: the final week is dense, everything before it a thin sample
+// of the most-engaged posts, so the two are charted at different grains.
+const VIEWS: Record<ViewId, View> = {
+  monthly: {
+    ...(trend.monthly as Pick<View, "categories" | "series" | "start" | "end">),
+    chart: "line",
+    unit: "month",
+    tick: monthTick,
+    periodTitle: (p) => fullMonthFmt.format(toMonth(p)),
+    firstHeader: "Month",
+    title: (subject) => `Sentiment towards ${subject}, month by month`,
+    subtitle: (n) =>
+      `Share of posts per monthly scrape · ${n.toLocaleString()} posts, ${monthYearFmt.format(toMonth(trend.monthly.start))} to ${monthYearFmt.format(toMonth(trend.monthly.end))}`,
+    footnote:
+      "Each month is the most-engaged vaccine posts X returned when that month was scraped. Popular posts stay popular, so many appear in several months. Sentiment is model-predicted.",
+  },
+  daily: {
+    ...(trend.daily as Pick<View, "categories" | "series" | "start" | "end">),
+    chart: "bar",
+    unit: "day",
+    tick: (p) => dayFmt.format(toDate(p)),
+    periodTitle: (p) => fullDayFmt.format(toDate(p)),
+    firstHeader: "Day",
+    title: (subject) => `Sentiment towards ${subject} this week, day by day`,
+    subtitle: (n) =>
+      `Share of posts per day · ${n.toLocaleString()} posts, ${dayMonthFmt.format(toDate(trend.daily.start))} to ${dayMonthFmt.format(toDate(trend.daily.end))} ${toDate(trend.daily.end).getUTCFullYear()}`,
+    footnote: "Sentiment is model-predicted.",
+  },
+  quarterly: {
+    ...(trend.quarterly as Pick<View, "categories" | "series" | "start" | "end">),
+    chart: "bar",
+    unit: "quarter",
+    tick: (p) => `Q${qNum(p)} ${qYear(p)}`,
+    periodTitle: (p) => `${QUARTER_MONTHS[qNum(p) - 1]} ${qYear(p)}`,
+    firstHeader: "Quarter",
+    title: (subject) => `Sentiment towards ${subject} before this week, quarter by quarter`,
+    subtitle: (n) =>
+      `Share of the most-engaged posts per quarter · ${n.toLocaleString()} posts, ${monthYearFmt.format(toDate(trend.quarterly.start))} to ${dayMonthFmt.format(toDate(trend.quarterly.end))} ${toDate(trend.quarterly.end).getUTCFullYear()}`,
+    footnote:
+      "Before this week only the most-engaged posts on X were collected, about 50 a quarter, so this shows sentiment in viral posts rather than the everyday conversation. Sentiment is model-predicted.",
+  },
+};
 
 const axisTick = { fontSize: 12, fontWeight: 600, fill: "#8A95A1" };
 const card: CSSProperties = { background: "#fff", borderRadius: 22, padding: "22px 24px 18px", boxShadow: "0 3px 14px rgba(18,24,31,.06)" };
@@ -81,10 +135,10 @@ function BucketTooltip({ title, bucket }: { title: string; bucket?: Bucket }) {
         ))
       ) : (
         <div style={{ fontSize: 13, fontWeight: 600, color: "#6B7684" }}>
-          {bucket.n === 0 ? "No tweets collected" : `Only ${bucket.n} tweets, too few to plot`}
+          {bucket.n === 0 ? "No posts collected" : `Only ${bucket.n} posts, too few to plot`}
         </div>
       )}
-      <div style={{ fontSize: 12, fontWeight: 600, color: "#9AA5B1", marginTop: 8 }}>{bucket.n.toLocaleString()} tweets</div>
+      <div style={{ fontSize: 12, fontWeight: 600, color: "#9AA5B1", marginTop: 8 }}>{bucket.n.toLocaleString()} posts</div>
     </div>
   );
 }
@@ -119,6 +173,30 @@ function SentimentBars({ layout }: { layout: "horizontal" | "vertical" }) {
   ));
 }
 
+function SentimentLines() {
+  return SERIES.map((s) => (
+    <Line
+      key={s.key}
+      type="monotone"
+      dataKey={s.key}
+      name={s.label}
+      stroke={s.color}
+      strokeWidth={2.5}
+      dot={false}
+      activeDot={{ r: 4.5, strokeWidth: 2, stroke: "#fff" }}
+      isAnimationActive={false}
+    />
+  ));
+}
+
+// Shares never come near 100% on their own, so the line chart's axis stops at the
+// next 10% above the highest value (at least 50%) instead of wasting half the height.
+function lineAxisTicks(data: Period[]) {
+  const max = Math.max(...data.flatMap((b) => SERIES.map((s) => b[s.key] ?? 0)));
+  const top = Math.max(50, Math.ceil(max / 10) * 10);
+  return Array.from({ length: top / 10 + 1 }, (_, i) => i * 10);
+}
+
 function ShareTable({ rows, firstHeader }: { rows: { key: string; label: string; bucket: Bucket }[]; firstHeader: string }) {
   return (
     <details style={{ marginTop: 12 }}>
@@ -127,7 +205,7 @@ function ShareTable({ rows, firstHeader }: { rows: { key: string; label: string;
         <thead>
           <tr style={{ textAlign: "right", color: "#8A95A1" }}>
             <th style={{ textAlign: "left", padding: "6px 4px" }}>{firstHeader}</th>
-            <th style={{ padding: "6px 4px" }}>Tweets</th>
+            <th style={{ padding: "6px 4px" }}>Posts</th>
             {SERIES.map((s) => (
               <th key={s.key} style={{ padding: "6px 4px" }}>{s.label}</th>
             ))}
@@ -192,108 +270,86 @@ function Segmented<T extends string>({
   );
 }
 
-export default function SentimentTrendChart() {
+export default function SentimentTrendChart({ view: viewId }: { view: ViewId }) {
+  const view = VIEWS[viewId];
   const [category, setCategory] = useState<CategoryId>("all");
-  const [granularity, setGranularity] = useState<Granularity>("weekly");
 
-  const data = SERIES_BY[granularity][category];
-  const selected = CATEGORIES.find((c) => c.id === category)!;
+  const data = view.series[category];
+  const selected = view.categories.find((c) => c.id === category)!;
   const shown = data.filter(plotted).length;
-  const first = toDate(data[0].period);
-  const last = toDate(data[data.length - 1].period);
+  const subject = category === "all" ? "vaccines" : `${selected.label} vaccines`;
 
-  const categoryOptions = CATEGORIES.map((c) => {
-    const chartable = plottedCount("monthly", c.id) > 0;
-    return {
-      value: c.id,
-      label: c.label,
-      disabled: !chartable,
-      title: chartable ? undefined : `Only ${c.n} tweets, never ${MIN_N}+ in one month. Compare it in the chart below.`,
-    };
-  });
+  const tooltip = (p: { active?: boolean; payload?: ReadonlyArray<{ payload?: Period }> }) => {
+    const b = p.payload?.[0]?.payload;
+    return p.active && b ? <BucketTooltip title={view.periodTitle(b.period)} bucket={b} /> : null;
+  };
+
+  // Only offer diseases with enough posts to plot most periods
+  const options = view.categories
+    .filter((c) => view.series[c.id].filter(plotted).length * 2 >= view.series[c.id].length)
+    .map((c) => ({ value: c.id, label: c.label }));
 
   return (
     <section style={card}>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center", marginBottom: 20 }}>
-        <Segmented label="Vaccine" options={categoryOptions} value={category} onChange={setCategory} />
-        <Segmented
-          label="Time period"
-          options={[
-            { value: "weekly", label: "Weekly" },
-            { value: "monthly", label: "Monthly" },
-          ]}
-          value={granularity}
-          onChange={setGranularity}
-        />
-      </div>
+      {options.length > 1 && (
+        <div style={{ marginBottom: 20 }}>
+          <Segmented label="Disease" options={options} value={category} onChange={setCategory} />
+        </div>
+      )}
 
       <div style={{ display: "flex", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 18 }}>
         <div style={{ flex: 1, minWidth: 240 }}>
-          <h3 style={cardTitle}>
-            {category === "all" ? "Sentiment towards vaccines" : `Sentiment towards ${selected.label}`}, {granularity === "weekly" ? "week by week" : "month by month"}
-          </h3>
-          <p style={cardSub}>
-            Share of tweets per {granularity === "weekly" ? "week" : "month"} · {selected.n.toLocaleString()} tweets, {monthFmt.format(first)}{" "}
-            {first.getUTCFullYear()} to {monthFmt.format(last)} {last.getUTCFullYear()}
-          </p>
+          <h3 style={cardTitle}>{view.title(subject)}</h3>
+          <p style={cardSub}>{view.subtitle(selected.n)}</p>
         </div>
         <Legend shares={selected} />
       </div>
 
-      <div style={{ width: "100%", height: 300 }}>
+      <div style={{ width: "100%", height: 280 }}>
         <ResponsiveContainer>
-          <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -12 }} barCategoryGap={granularity === "weekly" ? 3 : "22%"}>
-            <CartesianGrid vertical={false} stroke="#EEF1F4" />
-            <XAxis
-              dataKey="period"
-              tickFormatter={(p: string) => (granularity === "weekly" ? (WEEK_TICKS.get(p) ?? "") : monthFmt.format(toDate(p)))}
-              interval={0}
-              tickLine={false}
-              axisLine={{ stroke: "#DCE4EA" }}
-              tick={axisTick}
-            />
-            <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tickFormatter={(v: number) => `${v}%`} tickLine={false} axisLine={false} tick={axisTick} />
-            <Tooltip
-              cursor={{ fill: "rgba(18,24,31,.05)" }}
-              content={(p) => {
-                const b = (p.payload as ReadonlyArray<{ payload?: Period }> | undefined)?.[0]?.payload;
-                return p.active && b ? <BucketTooltip title={periodTitle(granularity, b.period)} bucket={b} /> : null;
-              }}
-            />
-            {SentimentBars({ layout: "horizontal" })}
-          </BarChart>
+          {view.chart === "line" ? (
+            <LineChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+              <CartesianGrid vertical={false} stroke="#EEF1F4" />
+              <XAxis dataKey="period" tickFormatter={view.tick} interval={0} tickLine={false} axisLine={{ stroke: "#DCE4EA" }} tick={axisTick} padding={{ left: 6, right: 6 }} />
+              <YAxis domain={[0, "dataMax"]} ticks={lineAxisTicks(data)} tickFormatter={(v: number) => `${v}%`} tickLine={false} axisLine={false} tick={axisTick} />
+              <Tooltip cursor={{ stroke: "#C3CCD5", strokeDasharray: "3 3" }} content={tooltip} />
+              {SentimentLines()}
+            </LineChart>
+          ) : (
+            <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -12 }} barCategoryGap="22%">
+              <CartesianGrid vertical={false} stroke="#EEF1F4" />
+              <XAxis dataKey="period" tickFormatter={view.tick} interval={0} tickLine={false} axisLine={{ stroke: "#DCE4EA" }} tick={axisTick} />
+              <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tickFormatter={(v: number) => `${v}%`} tickLine={false} axisLine={false} tick={axisTick} />
+              <Tooltip cursor={{ fill: "rgba(18,24,31,.05)" }} content={tooltip} />
+              {SentimentBars({ layout: "horizontal" })}
+            </BarChart>
+          )}
         </ResponsiveContainer>
       </div>
 
       <p style={footnote}>
-        {granularity === "weekly" && shown < data.length / 2 && plottedCount("monthly", category) > shown
-          ? `Only ${shown} of ${data.length} weeks have ${MIN_N}+ ${category === "all" ? "" : `${selected.label} `}tweets. Monthly shows more. `
-          : ""}
-        Empty {granularity === "weekly" ? "weeks" : "months"} had no tweets collected or fewer than {MIN_N}. Sentiment is model-predicted.
+        {shown < data.length &&
+          (view.chart === "line" ? `Gaps are ${view.unit}s with fewer than ${MIN_N} posts. ` : `Empty ${view.unit}s had fewer than ${MIN_N} posts. `)}
+        {view.footnote}
       </p>
 
       <ShareTable
-        firstHeader={granularity === "weekly" ? "Week of" : "Month"}
-        rows={data
-          .filter((b) => b.n > 0)
-          .map((b) => ({
-            key: b.period,
-            label: granularity === "weekly" ? dayFmt.format(toDate(b.period)) : monthYearFmt.format(toDate(b.period)),
-            bucket: b,
-          }))}
+        firstHeader={view.firstHeader}
+        rows={data.filter((b) => b.n > 0).map((b) => ({ key: b.period, label: view.periodTitle(b.period), bucket: b }))}
       />
     </section>
   );
 }
 
-// Overall split per vaccine, most negative first, with all vaccines as the reference row.
-const BY_VACCINE = [
-  CATEGORIES.find((c) => c.id === "all")!,
-  ...CATEGORIES.filter((c) => c.id !== "all" && plotted(c)).sort((a, b) => b.negative! - a.negative!),
+// Overall split per disease, most negative first, with all vaccines as the reference row.
+const OVERALL = trend.overall as Category[];
+const BY_DISEASE = [
+  OVERALL.find((c) => c.id === "all")!,
+  ...OVERALL.filter((c) => c.id !== "all" && plotted(c)).sort((a, b) => b.negative! - a.negative!),
 ];
 
-function VaccineTick({ x, y, payload }: { x?: number | string; y?: number | string; payload?: { value: string } }) {
-  const c = BY_VACCINE.find((v) => v.label === payload?.value);
+function DiseaseTick({ x, y, payload }: { x?: number | string; y?: number | string; payload?: { value: string } }) {
+  const c = BY_DISEASE.find((v) => v.label === payload?.value);
   if (!c) return null;
   return (
     <g transform={`translate(${Number(x) - 8},${Number(y)})`}>
@@ -301,29 +357,32 @@ function VaccineTick({ x, y, payload }: { x?: number | string; y?: number | stri
         {c.label}
       </text>
       <text textAnchor="end" dy={13} style={{ fontSize: 11.5, fontWeight: 600, fill: "#9AA5B1" }}>
-        {c.n.toLocaleString()} tweets
+        {c.n.toLocaleString()} posts
       </text>
     </g>
   );
 }
 
-export function SentimentByVaccine() {
+export function SentimentByDisease() {
   return (
     <section style={card}>
       <div style={{ display: "flex", alignItems: "flex-end", gap: 16, flexWrap: "wrap", marginBottom: 14 }}>
         <div style={{ flex: 1, minWidth: 240 }}>
-          <h3 style={cardTitle}>Sentiment by vaccine</h3>
-          <p style={cardSub}>Share of tweets naming each COVID-19 vaccine, whole period</p>
+          <h3 style={cardTitle}>Sentiment by disease</h3>
+          <p style={cardSub}>
+            Share of posts about each disease&apos;s vaccine, {monthYearFmt.format(toDate(trend.quarterly.start))} to{" "}
+            {dayMonthFmt.format(toDate(trend.daily.end))} {toDate(trend.daily.end).getUTCFullYear()}
+          </p>
         </div>
         <Legend />
       </div>
 
-      <div style={{ width: "100%", height: BY_VACCINE.length * 46 + 30 }}>
+      <div style={{ width: "100%", height: BY_DISEASE.length * 46 + 30 }}>
         <ResponsiveContainer>
-          <BarChart data={BY_VACCINE} layout="vertical" margin={{ top: 0, right: 8, bottom: 0, left: 0 }} barCategoryGap="26%">
+          <BarChart data={BY_DISEASE} layout="vertical" margin={{ top: 0, right: 8, bottom: 0, left: 0 }} barCategoryGap="26%">
             <CartesianGrid horizontal={false} stroke="#EEF1F4" />
             <XAxis type="number" domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tickFormatter={(v: number) => `${v}%`} tickLine={false} axisLine={false} tick={axisTick} />
-            <YAxis type="category" dataKey="label" width={118} tickLine={false} axisLine={false} interval={0} tick={VaccineTick} />
+            <YAxis type="category" dataKey="label" width={118} tickLine={false} axisLine={false} interval={0} tick={DiseaseTick} />
             <Tooltip
               cursor={{ fill: "rgba(18,24,31,.05)" }}
               content={(p) => {
@@ -337,11 +396,11 @@ export function SentimentByVaccine() {
       </div>
 
       <p style={footnote}>
-        Matched by name in the tweet text; a tweet naming two vaccines counts for both. AstraZeneca includes Oxford and Covishield. Other brands:
-        Sinovac, Sinopharm, Covaxin, Sputnik, Novavax.
+        Matched by disease or vaccine name in the post text; a post naming two diseases counts for both. MMR covers measles, mumps and
+        rubella. Most posts are from this week.
       </p>
 
-      <ShareTable firstHeader="Vaccine" rows={BY_VACCINE.map((c) => ({ key: c.id, label: c.label, bucket: c }))} />
+      <ShareTable firstHeader="Disease" rows={BY_DISEASE.map((c) => ({ key: c.id, label: c.label, bucket: c }))} />
     </section>
   );
 }

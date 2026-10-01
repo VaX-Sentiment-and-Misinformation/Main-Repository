@@ -2,8 +2,7 @@
 
 Rewrites predicted_sentiment and confidence in misinfo_sentiment_predictions.csv
 using the model in backend/model_sentiment/, with the same text cleaning the
-model service uses. Run build_sentiment_trend.py afterwards to refresh the
-Trends page.
+model service uses. (The Trends page now uses predict_historical_sentiment.py.)
 
 Usage (from repo root, with the model weights in place):
     backend/venv/bin/python backend/scripts/predict_sentiment.py

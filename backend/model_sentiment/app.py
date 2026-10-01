@@ -3,9 +3,10 @@
 Run (from this folder):
     uvicorn app:app --port 8001
 
-The weights are not in git. Train them with train_sentiment_colab.ipynb and put
-the saved folder (config.json, model.safetensors, tokenizer files) at MODEL_DIR,
-or point the SENTIMENT_MODEL_DIR env var at it.
+The weights are not in git. Train them with modernbert.py and put the saved
+final_model folder (config.json, model.safetensors, tokenizer files) at MODEL_DIR,
+or point the SENTIMENT_MODEL_DIR env var at it (e.g. the older
+modernbert_sentiment_v3 from train_sentiment_colab.ipynb).
 """
 
 import os
@@ -18,7 +19,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-MODEL_DIR = Path(os.getenv("SENTIMENT_MODEL_DIR", Path(__file__).parent / "modernbert_sentiment_v3"))
+MODEL_DIR = Path(os.getenv("SENTIMENT_MODEL_DIR", Path(__file__).parent / "modernbert_model_weighted2" / "final_model"))
 BATCH_SIZE = 32
 
 # Training data encodes labels as 0/1/2 (see train_sentiment_colab.ipynb)
@@ -96,5 +97,9 @@ def predict(payload: PredictRequest):
             probs = model(**inputs).logits.softmax(dim=-1).cpu()
         for p in probs:
             pred_id = int(p.argmax())
-            results.append({"label": LABEL_MAP[pred_id], "score": round(float(p[pred_id]), 4)})
+            results.append({
+                "label": LABEL_MAP[pred_id],
+                "score": round(float(p[pred_id]), 4),
+                "scores": {LABEL_MAP[i]: round(float(p[i]), 4) for i in LABEL_MAP},
+            })
     return {"predictions": results}

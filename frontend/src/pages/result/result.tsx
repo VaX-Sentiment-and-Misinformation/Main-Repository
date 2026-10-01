@@ -79,67 +79,51 @@ const SENTIMENT_ROWS: { key: SentimentLabel; color: string; label: string }[] = 
   { key: "negative", color: "#F0603F", label: "Opposed to vaccination" },
 ];
 
-function posts(n: number) {
-  return `${n.toLocaleString("en-US")} ${n === 1 ? "post" : "posts"}`;
-}
-
 function SentimentCard({ analysis }: { analysis: SentimentAnalysis | null }) {
-  const title = <h2 style={{ ...cardTitle, marginBottom: 20 }}>In support of vaccines?</h2>;
+  const title = <h2 style={{ ...cardTitle, marginBottom: 16 }}>In support of vaccines?</h2>;
 
   if (!analysis) {
     return (
       <div style={card}>
         {title}
-        <p style={footnote}>Couldn&apos;t reach the analysis service. Check that the backend is running and try again.</p>
-      </div>
-    );
-  }
-  if (analysis.analysed === 0) {
-    return (
-      <div style={card}>
-        {title}
-        <p style={footnote}>No posts in our dataset discuss this claim yet. Try describing it in different words.</p>
+        <p style={footnote}>Couldn&apos;t reach the sentiment model. Check that the backend and model service are running and try again.</p>
       </div>
     );
   }
 
-  const { sentiment, analysed, matched, source } = analysis;
+  const { label, scores } = analysis;
+  const top = SENTIMENT_ROWS.find((r) => r.key === label)!;
   return (
     <div style={card}>
       {title}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14.5, fontWeight: 600, color: "#3B4650", marginBottom: 20 }}>
+        <span>This claim reads as</span>
+        <span style={{ display: "flex", alignItems: "center", gap: 7, padding: "4px 12px", borderRadius: 999, background: "#F3F5F7", fontWeight: 800, color: "#12181F" }}>
+          <span style={{ width: 10, height: 10, borderRadius: "50%", background: top.color }}></span>
+          {top.label}
+        </span>
+      </div>
       <div style={{ display: "flex", gap: 4, height: 40, marginBottom: 20 }}>
-        {SENTIMENT_ROWS.filter((r) => sentiment[r.key].count > 0).map((r) => (
-          <div key={r.key} style={{ flex: sentiment[r.key].count, background: r.color, borderRadius: 999 }}></div>
+        {SENTIMENT_ROWS.filter((r) => scores[r.key] >= 0.01).map((r) => (
+          <div key={r.key} style={{ flex: scores[r.key], background: r.color, borderRadius: 999 }}></div>
         ))}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
         {SENTIMENT_ROWS.map((r) => (
-          <SentimentRow
-            key={r.key}
-            color={r.color}
-            label={r.label}
-            pct={`${sentiment[r.key].pct}%`}
-            count={posts(sentiment[r.key].count)}
-          />
+          <SentimentRow key={r.key} color={r.color} label={r.label} pct={`${Math.round(scores[r.key] * 100)}%`} />
         ))}
       </div>
-      <p style={footnote}>
-        Based on {analysed === matched ? posts(matched) : `the ${analysed} most relevant of ${posts(matched)}`} discussing this
-        claim. Each post is classified by its stance on vaccination, not on the claim, so posts mocking the claim count as
-        supportive.
-        {source === "stored" && " Showing saved predictions while the live model is offline."}
-      </p>
+      <p style={footnote}>The sentiment model&apos;s confidence that the claim takes each stance on vaccination.</p>
     </div>
   );
 }
 
-function SentimentRow({ color, label, pct, count }: { color: string; label: string; pct: string; count: string }) {
+function SentimentRow({ color, label, pct }: { color: string; label: string; pct: string }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 12, fontSize: 14.5, fontWeight: 600 }}>
       <span style={{ width: 12, height: 12, borderRadius: "50%", background: color, flex: "none" }}></span>
       <span style={{ flex: 1, color: "#3B4650" }}>{label}</span>
       <span style={{ fontWeight: 800, fontSize: 16 }}>{pct}</span>
-      <span style={{ width: 76, textAlign: "right", color: "#9AA5B1", fontSize: 13 }}>{count}</span>
     </div>
   );
 }

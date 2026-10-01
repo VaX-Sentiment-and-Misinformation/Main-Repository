@@ -4,14 +4,12 @@ export type SentimentLabel = "positive" | "neutral" | "negative";
 
 export interface SentimentAnalysis {
   query: string;
-  matched: number;
-  analysed: number;
-  // "stored" means the model service was down and saved predictions were used
-  source: "model" | "stored" | null;
-  sentiment: Record<SentimentLabel, { count: number; pct: number }>;
+  label: SentimentLabel;
+  // Model confidence in each label, 0 to 1, summing to 1
+  scores: Record<SentimentLabel, number>;
 }
 
-// Returns null when the backend can't be reached, so the page still renders.
+// Returns null when the backend or model can't be reached, so the page still renders.
 export async function analyseSentiment(query: string): Promise<SentimentAnalysis | null> {
   try {
     const res = await fetch(`${API_URL}/analyse/sentiment?q=${encodeURIComponent(query)}`);
