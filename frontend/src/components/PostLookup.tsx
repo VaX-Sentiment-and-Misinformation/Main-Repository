@@ -1,26 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import type { XPost } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://127.0.0.1:8000";
-
-// Mirrors the dict returned by backend/main_api/x_post_fetcher.py.
-// Fields the syndication fallback can't supply come back as null.
-export type XPost = {
-  id: string;
-  url: string;
-  created_at: string | null;
-  text: string;
-  lang: string | null;
-  author_name: string | null;
-  author_handle: string | null;
-  likes: number | null;
-  reposts: number | null;
-  replies: number | null;
-  views: number | null;
-  media_urls: string[];
-  _backend: string;
-};
 
 export default function PostLookup() {
   const [url, setUrl] = useState("");

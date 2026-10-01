@@ -1,12 +1,16 @@
 import Link from "next/link";
-import type { SentimentAnalysis, SentimentLabel } from "@/lib/api";
+import type { SentimentLabel, SentimentResult, XPost } from "@/lib/api";
 
 interface ResultProps {
   query: string;
-  sentiment: SentimentAnalysis | null;
+  result: SentimentResult;
 }
 
-export default function Result({ query, sentiment }: ResultProps) {
+export default function Result({ query, result }: ResultProps) {
+  const post = result.ok ? result.analysis.post : null;
+
+  if (!result.ok && result.invalidInput) return <InputError query={query} error={result.error} />;
+
   return (
     <main className="vx-rise" style={{ maxWidth: 1180, margin: "0 auto", padding: "36px 40px 0" }}>
       <Link href="/" style={{ fontSize: 14, fontWeight: 700, color: "#6B7684", marginBottom: 22, padding: 0, display: "inline-block" }}>
@@ -14,10 +18,14 @@ export default function Result({ query, sentiment }: ResultProps) {
       </Link>
 
       <div style={{ marginBottom: 22 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: "#8A95A1", marginBottom: 10 }}>Analysed claim</div>
-        <h1 className="vx-text-pretty" style={{ fontSize: 38, fontWeight: 800, lineHeight: 1.12, letterSpacing: "-.03em", margin: 0 }}>
-          {query}
-        </h1>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "#8A95A1", marginBottom: 10 }}>{post ? "Analysed post" : "Analysed claim"}</div>
+        {post ? (
+          <PostCard post={post} />
+        ) : (
+          <h1 className="vx-text-pretty" style={{ fontSize: 38, fontWeight: 800, lineHeight: 1.12, letterSpacing: "-.03em", margin: 0, overflowWrap: "anywhere" }}>
+            {query}
+          </h1>
+        )}
       </div>
 
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(460px, 1fr))", gap: 20 }}>
@@ -63,7 +71,7 @@ export default function Result({ query, sentiment }: ResultProps) {
           </div>
         </div>
 
-        <SentimentCard analysis={sentiment} />
+        <SentimentCard result={result} />
       </section>
     </main>
   );
@@ -79,25 +87,83 @@ const SENTIMENT_ROWS: { key: SentimentLabel; color: string; label: string }[] = 
   { key: "negative", color: "#F0603F", label: "Opposed to vaccination" },
 ];
 
-function SentimentCard({ analysis }: { analysis: SentimentAnalysis | null }) {
+function InputError({ query, error }: { query: string; error: string }) {
+  return (
+    <main className="vx-rise" style={{ maxWidth: 1180, margin: "0 auto", padding: "36px 40px 0" }}>
+      <Link href="/" style={{ fontSize: 14, fontWeight: 700, color: "#6B7684", marginBottom: 22, padding: 0, display: "inline-block" }}>
+        &lt;- New search
+      </Link>
+
+      <div role="alert" style={{ ...card, maxWidth: 760 }}>
+        <h1 style={{ ...cardTitle, fontSize: 24, marginBottom: 10 }}>We can&apos;t analyse that</h1>
+        <p style={{ fontSize: 15.5, lineHeight: 1.55, color: "#3B4650", fontWeight: 500, margin: "0 0 20px" }}>{error}</p>
+        <form action="/result" method="get" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+          <input
+            type="text"
+            name="q"
+            defaultValue={query}
+            aria-label="Claim or X post link"
+            style={{ flex: "1 1 260px", minWidth: 0, minHeight: 46, padding: "0 18px", borderRadius: 999, border: "1.5px solid #F0603F", fontSize: 15, fontWeight: 500, color: "#12181F" }}
+          />
+          <button
+            type="submit"
+            className="vx-btn-brand"
+            style={{ border: 0, borderRadius: 999, padding: "0 26px", minHeight: 46, color: "#fff", fontWeight: 700, fontSize: 15 }}
+          >
+            Try again
+          </button>
+        </form>
+      </div>
+    </main>
+  );
+}
+
+function PostCard({ post }: { post: XPost }) {
+  const stats = [
+    post.created_at && new Date(post.created_at).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" }),
+    post.likes != null && `${post.likes.toLocaleString("en-AU")} likes`,
+    post.reposts != null && `${post.reposts.toLocaleString("en-AU")} reposts`,
+  ].filter(Boolean);
+
+  return (
+    <article style={{ ...card, maxWidth: 760 }}>
+      <div style={{ fontSize: 15, fontWeight: 800, color: "#12181F" }}>
+        {post.author_name} <span style={{ fontWeight: 600, color: "#8A95A1" }}>@{post.author_handle}</span>
+      </div>
+      <p className="vx-text-pretty" style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.35, letterSpacing: "-.02em", margin: "10px 0 14px", whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+        {post.text}
+      </p>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 14, fontSize: 13.5, fontWeight: 600, color: "#9AA5B1" }}>
+        {stats.map((s) => (
+          <span key={s as string}>{s}</span>
+        ))}
+        <a href={post.url} target="_blank" rel="noopener noreferrer" style={{ marginLeft: "auto", fontWeight: 700, color: "#0FA97F" }}>
+          View on X -&gt;
+        </a>
+      </div>
+    </article>
+  );
+}
+
+function SentimentCard({ result }: { result: SentimentResult }) {
   const title = <h2 style={{ ...cardTitle, marginBottom: 16 }}>In support of vaccines?</h2>;
 
-  if (!analysis) {
+  if (!result.ok) {
     return (
       <div style={card}>
         {title}
-        <p style={footnote}>Couldn&apos;t reach the sentiment model. Check that the backend and model service are running and try again.</p>
+        <p style={footnote}>{result.error}</p>
       </div>
     );
   }
 
-  const { label, scores } = analysis;
+  const { label, scores, post } = result.analysis;
   const top = SENTIMENT_ROWS.find((r) => r.key === label)!;
   return (
     <div style={card}>
       {title}
       <div style={{ display: "flex", alignItems: "center", gap: 10, fontSize: 14.5, fontWeight: 600, color: "#3B4650", marginBottom: 20 }}>
-        <span>This claim reads as</span>
+        <span>This {post ? "post" : "claim"} reads as</span>
         <span style={{ display: "flex", alignItems: "center", gap: 7, padding: "4px 12px", borderRadius: 999, background: "#F3F5F7", fontWeight: 800, color: "#12181F" }}>
           <span style={{ width: 10, height: 10, borderRadius: "50%", background: top.color }}></span>
           {top.label}
@@ -113,7 +179,7 @@ function SentimentCard({ analysis }: { analysis: SentimentAnalysis | null }) {
           <SentimentRow key={r.key} color={r.color} label={r.label} pct={`${Math.round(scores[r.key] * 100)}%`} />
         ))}
       </div>
-      <p style={footnote}>The sentiment model&apos;s confidence that the claim takes each stance on vaccination.</p>
+      <p style={footnote}>The sentiment model&apos;s confidence that the {post ? "post" : "claim"} takes each stance on vaccination.</p>
     </div>
   );
 }

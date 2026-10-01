@@ -21,6 +21,7 @@ import json
 import math
 import random
 import re
+import ssl
 import sys
 import time
 import urllib.error
@@ -39,6 +40,14 @@ STATUS_RE = re.compile(r"status(?:es)?/(\d+)")
 ID_RE = re.compile(r"(\d{5,25})")
 
 DEFAULT_BACKENDS = ("fxtwitter", "syndication")
+
+# python.org's macOS builds ship without a CA bundle, so every HTTPS request
+# fails verification. Use certifi's bundle when it's installed.
+try:
+    import certifi
+    SSL_CONTEXT = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    SSL_CONTEXT = None
 
 
 class InvalidPostURL(ValueError):
@@ -119,7 +128,7 @@ def _get_json(url, timeout=20):
         "Accept": "application/json",
         "Accept-Language": "en-US,en;q=0.9",
     })
-    with urllib.request.urlopen(req, timeout=timeout) as r:
+    with urllib.request.urlopen(req, timeout=timeout, context=SSL_CONTEXT) as r:
         return json.loads(r.read().decode("utf-8", "replace"))
 
 

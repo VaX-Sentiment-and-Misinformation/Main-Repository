@@ -81,8 +81,8 @@ export default function Homepage() {
         </form>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 18, alignItems: "center" }}>
           <span style={{ fontSize: 13, color: "#8A95A1", fontWeight: 600, marginRight: 4 }}>Try</span>
-          {EXAMPLE_QUERIES.map((label) => (
-            <Link key={label} href={`/result?q=${encodeURIComponent(label)}`} className="vx-chip" style={chipStyle}>
+          {EXAMPLE_QUERIES.map(({ label, query }) => (
+            <Link key={label} href={`/result?q=${encodeURIComponent(query)}`} className="vx-chip" style={chipStyle}>
               {label}
             </Link>
           ))}

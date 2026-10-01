@@ -4,10 +4,11 @@ export const DEFAULT_QUERY = "Vaccines cause autism";
 export const TIME_WINDOW = "Last 30 days";
 export const TIME_WINDOW_LOWER = TIME_WINDOW.replace("Last ", "last ");
 
+// label is what the chip shows, query is what gets analysed
 export const EXAMPLE_QUERIES = [
-  "Vaccines cause autism",
-  "The schedule is too many shots at once",
-  "https://x.com/post/1849...",
+  { label: "Vaccines cause autism", query: "Vaccines cause autism" },
+  { label: "The schedule is too many shots at once", query: "The schedule is too many shots at once" },
+  { label: "x.com/CPRNews/status/1344...", query: "https://x.com/CPRNews/status/1344794822691983360" },
 ];
 
 export interface TrendCard {
