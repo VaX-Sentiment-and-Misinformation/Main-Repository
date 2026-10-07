@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 
-function pill(bg: string, fg: string): CSSProperties {
+export function pill(bg: string, fg: string): CSSProperties {
   return {
     display: "inline-flex",
     fontSize: 12.5,

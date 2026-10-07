@@ -7,10 +7,12 @@ from x_post_fetcher import InvalidPostURL, PostUnavailable, fetch_post
 
 load_dotenv()
 
+from misinformation import router as misinformation_router
 from sentiment import router as sentiment_router
 
 app = FastAPI()
 app.include_router(sentiment_router)
+app.include_router(misinformation_router)
 
 # Allow Next.js frontend to communicate with backend
 app.add_middleware(
