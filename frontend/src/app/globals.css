@@ -83,15 +83,6 @@ a:focus-visible {
   transform: translateY(-2px);
 }
 
-.vx-topic-card {
-  box-shadow: 0 3px 14px rgba(18, 24, 31, 0.06);
-  transition: box-shadow 0.15s ease, transform 0.15s ease;
-}
-.vx-topic-card:hover {
-  box-shadow: 0 10px 26px rgba(18, 24, 31, 0.11);
-  transform: translateY(-2px);
-}
-
 .vx-rise {
   animation: vx-rise 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }

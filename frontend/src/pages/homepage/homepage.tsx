@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { KICKER } from "@/lib/badges";
-import { EXAMPLE_QUERIES, TRENDING_CLAIMS, trendBarColor, trendScoreColor } from "@/lib/mockData";
+import TrendingPostCard, { TRENDING_POSTS } from "@/components/TrendingPostCard";
+import { EXAMPLE_QUERIES } from "@/lib/mockData";
 
 const chipStyle: CSSProperties = {
   fontSize: 13.5,
@@ -90,37 +90,14 @@ export default function Homepage() {
       </section>
 
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", margin: "80px 0 20px" }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Trending claims this week</h2>
+        <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-.02em", margin: 0 }}>Trending posts</h2>
         <Link href="/trends" style={{ fontSize: 14, fontWeight: 700, color: "#0FA97F" }}>
           All trends -&gt;
         </Link>
       </div>
       <section style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18 }}>
-        {TRENDING_CLAIMS.map((c) => (
-          <article
-            key={c.title}
-            className="vx-trend-card"
-            style={{ position: "relative", background: "#fff", borderRadius: 24, padding: 24, display: "flex", flexDirection: "column", gap: 12, minHeight: 232 }}
-          >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={KICKER[c.kicker]}>{c.kicker}</span>
-              <span style={{ fontSize: 12.5, color: "#9AA5B1", fontWeight: 600 }}>{c.volume}</span>
-            </div>
-            <h3 style={{ fontSize: 20, fontWeight: 700, letterSpacing: "-.02em", margin: 0, color: "#12181F" }}>{c.title}</h3>
-            <p style={{ margin: 0, flex: 1, fontSize: 14, lineHeight: 1.55, color: "#6B7684", fontWeight: 500 }}>{c.body}</p>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 2 }}>
-              <div style={{ flex: 1, height: 8, borderRadius: 999, background: "#EDF1F4", overflow: "hidden" }}>
-                <div style={{ width: `${c.pct}%`, height: "100%", borderRadius: 999, background: trendBarColor(c.pct) }}></div>
-              </div>
-              <span style={{ fontSize: 15, fontWeight: 800, color: trendScoreColor(c.pct) }}>{c.score}</span>
-            </div>
-            <span style={{ fontSize: 13.5, fontWeight: 700, color: "#0FA97F" }}>Learn more -&gt;</span>
-            <Link
-              href={`/result?q=${encodeURIComponent(c.title)}`}
-              aria-label={c.title}
-              style={{ position: "absolute", inset: 0, borderRadius: 24 }}
-            ></Link>
-          </article>
+        {TRENDING_POSTS.slice(0, 3).map((p) => (
+          <TrendingPostCard key={p.postUrl} post={p} />
         ))}
       </section>
     </main>
