@@ -1,26 +1,163 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f2f5f7;
+  --foreground: #12181f;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --font-sans: var(--font-manrope);
 }
 
 body {
+  margin: 0;
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: #0fa97f;
+  text-decoration: none;
+}
+a:hover {
+  color: #0c8c69;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+input {
+  font-family: inherit;
+}
+input:focus-visible,
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid #0fa97f;
+  outline-offset: 2px;
+}
+
+@keyframes vx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vx-ring {
+  from {
+    stroke-dashoffset: 478;
+  }
+}
+
+.vx-text-pretty {
+  text-wrap: pretty;
+}
+
+.vx-btn-brand {
+  background: #0fa97f;
+}
+.vx-btn-brand:hover {
+  background: #0c8c69;
+}
+
+.vx-chip {
+  color: #5c6875;
+}
+.vx-chip:hover {
+  color: #0fa97f;
+}
+
+.vx-trend-card {
+  box-shadow: 0 3px 14px rgba(18, 24, 31, 0.06);
+  transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.vx-trend-card:hover {
+  box-shadow: 0 10px 28px rgba(18, 24, 31, 0.12);
+  transform: translateY(-2px);
+}
+
+.vx-rise {
+  animation: vx-rise 0.4s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.vx-ring {
+  animation: vx-ring 1.1s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+/* Result page: ring beside the verdict, stacked on narrow screens */
+.vx-meter-top {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 28px;
+  row-gap: 18px;
+  align-items: center;
+}
+@media (max-width: 520px) {
+  .vx-meter-top {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+}
+
+.vx-page {
+  padding: 36px 40px 0;
+}
+.vx-post-text {
+  font-size: 19px;
+}
+@media (max-width: 520px) {
+  .vx-page {
+    padding: 24px 16px 0;
+  }
+  .vx-post-text {
+    font-size: 16px;
+  }
+}
+
+/* Placeholder lines while the explanation streams in */
+@keyframes vx-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+.vx-skeleton {
+  height: 12px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e9edf1 25%, #f4f6f8 50%, #e9edf1 75%);
+  background-size: 200% 100%;
+  animation: vx-shimmer 1.4s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vx-skeleton,
+  .vx-ring {
+    animation: none;
+  }
+}
+
+.vx-acc > summary {
+  list-style: none;
+  cursor: pointer;
+}
+.vx-acc > summary::-webkit-details-marker {
+  display: none;
+}
+.vx-acc > summary .vx-chev {
+  transition: transform 0.15s ease;
+}
+.vx-acc[open] > summary .vx-chev {
+  transform: rotate(90deg);
+}
+.vx-acc > summary:hover {
+  color: #0fa97f;
 }

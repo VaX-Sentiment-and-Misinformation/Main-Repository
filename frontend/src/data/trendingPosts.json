@@ -1,0 +1,97 @@
+{
+  "source": "apify_vax_2026-09.json",
+  "start": "2026-09-23",
+  "end": "2026-09-30",
+  "posts": [
+    {
+      "sentiment": "negative",
+      "author": "Mary Talley Bowden MD",
+      "handle": "MaryBowdenMD",
+      "body": "Think we're freaking out over nothing? Every traditional vaccine is eventually going to be replaced by mRNA. Here's where things stand just with Moderna. By keeping mRNA on the...",
+      "postUrl": "https://x.com/MaryBowdenMD/status/2104285827975069878",
+      "likes": "22.9k likes",
+      "score": "100%",
+      "pct": 100
+    },
+    {
+      "sentiment": "positive",
+      "author": "🇺🇸👊Richard Citizen Journalist🇺🇸👊",
+      "handle": "RCJonX",
+      "body": "CNN’s Dana Bash: “I also don't want to use this interview to allow you to say things that aren't entirely true. It is also factually true that the COVID vaccine worked. The COVID...",
+      "postUrl": "https://x.com/RCJonX/status/2102727665484484785",
+      "likes": "27.7k likes",
+      "score": "1%",
+      "pct": 1
+    },
+    {
+      "sentiment": "negative",
+      "author": "Valerie Anne Smith",
+      "handle": "ValerieAnne1970",
+      "body": "Aaron Siri: \"Babies have to remain alive for organs to be harvested in Vaccine development experiments.\" \"You can't grow viruses using dead organ tissue, they have to be born...",
+      "postUrl": "https://x.com/ValerieAnne1970/status/2103871042573795576",
+      "likes": "12.7k likes",
+      "score": "100%",
+      "pct": 100
+    },
+    {
+      "sentiment": "negative",
+      "author": "War Correspondent",
+      "handle": "warDaniel47",
+      "body": "🚨 BREAKING: Secretary RFK Jr. reveals that he fired the CDC vaccine chief because for 7 MONTHS Kennedy was BLOCKED from getting vaccine safety data. This person also STONEWALLED...",
+      "postUrl": "https://x.com/warDaniel47/status/2103105133290696708",
+      "likes": "15.9k likes",
+      "score": "98%",
+      "pct": 98
+    },
+    {
+      "sentiment": "positive",
+      "author": "Neil Stone",
+      "handle": "DrNeilStone",
+      "body": "Scotland 🏴󠁧󠁢󠁳󠁣󠁴󠁿 has reported zero cases of cervical cancer in women fully vaccinated against HPV at 12–13. Zero. Show me the \"natural remedy\" that did that.",
+      "postUrl": "https://x.com/DrNeilStone/status/2102822218644250952",
+      "likes": "17.7k likes",
+      "score": "0%",
+      "pct": 0
+    },
+    {
+      "sentiment": "positive",
+      "author": "@everywhere",
+      "handle": "WinterBlues1104",
+      "body": "My daughter got the flu. I took her to the Dr. first thing they wanted to do was a Covid test and vaccine. I said absolutely not. They leave the room and come back about 10...",
+      "postUrl": "https://x.com/WinterBlues1104/status/2104968131693236484",
+      "likes": "13.9k likes",
+      "score": "1%",
+      "pct": 1
+    },
+    {
+      "sentiment": "neutral",
+      "author": "Deep Dives",
+      "handle": "DeepDivesUsa",
+      "body": "🚨IT'S OFFICIAL!!! PFIZER HAS JUST PUBLISHED THE LIST OF POSSIBLE SIDE EFFECTS, OF ITS « COVID VACCINE » !!! IT'S CRIMINAL! 1) Blood clot, 2) Acute kidney injury, 3) Acute flaccid...",
+      "postUrl": "https://x.com/DeepDivesUsa/status/2103774406388462060",
+      "likes": "8.8k likes",
+      "score": "100%",
+      "pct": 100
+    },
+    {
+      "sentiment": "positive",
+      "author": "Dr Charlie Ward",
+      "handle": "DrcharlieWardQ",
+      "body": "BREAKING 🚨: HHS Secretary Robert F. Kennedy Jr.: “I know you're flustered now, and it is…” CNN’s Dana Bash: “I'm not flustered at all. Robert F. Kennedy Jr.: “Do you see your job...",
+      "postUrl": "https://x.com/DrcharlieWardQ/status/2104463125797859755",
+      "likes": "11.5k likes",
+      "score": "24%",
+      "pct": 24
+    },
+    {
+      "sentiment": "neutral",
+      "author": "MJTruthUltra",
+      "handle": "MJTruthUltra",
+      "body": "HOLEE SHYT‼️ Dr. James Miller testified that the head of infectious disease at his hospital said he was secretly collaborating with state officials to make driver’s license...",
+      "postUrl": "https://x.com/MJTruthUltra/status/2104674132382163220",
+      "likes": "8.2k likes",
+      "score": "99%",
+      "pct": 99
+    }
+  ]
+}

@@ -1,0 +1,3813 @@
+{
+  "source": "historical_posts_sentiment.csv",
+  "minBucketPosts": 30,
+  "overall": [
+    {
+      "id": "all",
+      "label": "All vaccines",
+      "n": 2302,
+      "negative": 28.8,
+      "neutral": 30.8,
+      "positive": 40.4
+    },
+    {
+      "id": "covid19",
+      "label": "COVID-19",
+      "n": 1014,
+      "negative": 42.3,
+      "neutral": 28.9,
+      "positive": 28.8
+    },
+    {
+      "id": "mmr",
+      "label": "MMR",
+      "n": 552,
+      "negative": 21.9,
+      "neutral": 26.3,
+      "positive": 51.8
+    },
+    {
+      "id": "hpv",
+      "label": "HPV",
+      "n": 483,
+      "negative": 16.8,
+      "neutral": 28.8,
+      "positive": 54.5
+    },
+    {
+      "id": "polio",
+      "label": "Polio",
+      "n": 327,
+      "negative": 20.5,
+      "neutral": 27.8,
+      "positive": 51.7
+    },
+    {
+      "id": "hepatitis_b",
+      "label": "Hepatitis B",
+      "n": 333,
+      "negative": 29.4,
+      "neutral": 33.3,
+      "positive": 37.2
+    },
+    {
+      "id": "hepatitis_a",
+      "label": "Hepatitis A",
+      "n": 136,
+      "negative": 35.3,
+      "neutral": 36.8,
+      "positive": 27.9
+    },
+    {
+      "id": "chickenpox",
+      "label": "Chickenpox",
+      "n": 223,
+      "negative": 21.5,
+      "neutral": 40.4,
+      "positive": 38.1
+    },
+    {
+      "id": "meningitis",
+      "label": "Meningitis",
+      "n": 190,
+      "negative": 24.7,
+      "neutral": 33.7,
+      "positive": 41.6
+    },
+    {
+      "id": "tuberculosis",
+      "label": "Tuberculosis",
+      "n": 83,
+      "negative": 12.0,
+      "neutral": 34.9,
+      "positive": 53.0
+    }
+  ],
+  "monthly": {
+    "start": "2023-10",
+    "end": "2026-09",
+    "categories": [
+      {
+        "id": "all",
+        "label": "All vaccines",
+        "n": 33325,
+        "negative": 28.1,
+        "neutral": 29.1,
+        "positive": 42.8
+      },
+      {
+        "id": "covid19",
+        "label": "COVID-19",
+        "n": 12126,
+        "negative": 42.6,
+        "neutral": 26.9,
+        "positive": 30.5
+      },
+      {
+        "id": "mmr",
+        "label": "MMR",
+        "n": 10292,
+        "negative": 26.5,
+        "neutral": 25.7,
+        "positive": 47.9
+      },
+      {
+        "id": "hpv",
+        "label": "HPV",
+        "n": 9036,
+        "negative": 16.6,
+        "neutral": 26.1,
+        "positive": 57.3
+      },
+      {
+        "id": "polio",
+        "label": "Polio",
+        "n": 6695,
+        "negative": 26.0,
+        "neutral": 25.9,
+        "positive": 48.1
+      },
+      {
+        "id": "hepatitis_b",
+        "label": "Hepatitis B",
+        "n": 7483,
+        "negative": 29.5,
+        "neutral": 29.4,
+        "positive": 41.1
+      },
+      {
+        "id": "hepatitis_a",
+        "label": "Hepatitis A",
+        "n": 3741,
+        "negative": 36.3,
+        "neutral": 34.3,
+        "positive": 29.5
+      },
+      {
+        "id": "chickenpox",
+        "label": "Chickenpox",
+        "n": 5870,
+        "negative": 23.3,
+        "neutral": 36.7,
+        "positive": 40.0
+      },
+      {
+        "id": "meningitis",
+        "label": "Meningitis",
+        "n": 4877,
+        "negative": 28.1,
+        "neutral": 30.6,
+        "positive": 41.4
+      },
+      {
+        "id": "tuberculosis",
+        "label": "Tuberculosis",
+        "n": 1254,
+        "negative": 19.3,
+        "neutral": 34.5,
+        "positive": 46.2
+      }
+    ],
+    "series": {
+      "all": [
+        {
+          "period": "2023-10",
+          "n": 932,
+          "negative": 26.9,
+          "neutral": 29.6,
+          "positive": 43.5
+        },
+        {
+          "period": "2023-11",
+          "n": 929,
+          "negative": 27.9,
+          "neutral": 29.8,
+          "positive": 42.3
+        },
+        {
+          "period": "2023-12",
+          "n": 925,
+          "negative": 30.4,
+          "neutral": 27.4,
+          "positive": 42.3
+        },
+        {
+          "period": "2024-01",
+          "n": 934,
+          "negative": 30.4,
+          "neutral": 29.3,
+          "positive": 40.3
+        },
+        {
+          "period": "2024-02",
+          "n": 931,
+          "negative": 28.7,
+          "neutral": 29.1,
+          "positive": 42.2
+        },
+        {
+          "period": "2024-03",
+          "n": 933,
+          "negative": 30.1,
+          "neutral": 28.7,
+          "positive": 41.2
+        },
+        {
+          "period": "2024-04",
+          "n": 929,
+          "negative": 30.0,
+          "neutral": 27.7,
+          "positive": 42.3
+        },
+        {
+          "period": "2024-05",
+          "n": 933,
+          "negative": 28.2,
+          "neutral": 31.2,
+          "positive": 40.6
+        },
+        {
+          "period": "2024-06",
+          "n": 928,
+          "negative": 29.2,
+          "neutral": 30.8,
+          "positive": 40.0
+        },
+        {
+          "period": "2024-07",
+          "n": 928,
+          "negative": 30.7,
+          "neutral": 29.5,
+          "positive": 39.8
+        },
+        {
+          "period": "2024-08",
+          "n": 937,
+          "negative": 27.2,
+          "neutral": 29.5,
+          "positive": 43.3
+        },
+        {
+          "period": "2024-09",
+          "n": 948,
+          "negative": 28.7,
+          "neutral": 29.6,
+          "positive": 41.7
+        },
+        {
+          "period": "2024-10",
+          "n": 941,
+          "negative": 27.8,
+          "neutral": 28.7,
+          "positive": 43.5
+        },
+        {
+          "period": "2024-11",
+          "n": 928,
+          "negative": 28.7,
+          "neutral": 28.1,
+          "positive": 43.2
+        },
+        {
+          "period": "2024-12",
+          "n": 933,
+          "negative": 29.6,
+          "neutral": 29.8,
+          "positive": 40.6
+        },
+        {
+          "period": "2025-01",
+          "n": 926,
+          "negative": 28.0,
+          "neutral": 29.6,
+          "positive": 42.4
+        },
+        {
+          "period": "2025-02",
+          "n": 931,
+          "negative": 27.3,
+          "neutral": 29.3,
+          "positive": 43.4
+        },
+        {
+          "period": "2025-03",
+          "n": 942,
+          "negative": 27.2,
+          "neutral": 29.5,
+          "positive": 43.3
+        },
+        {
+          "period": "2025-04",
+          "n": 936,
+          "negative": 28.5,
+          "neutral": 28.0,
+          "positive": 43.5
+        },
+        {
+          "period": "2025-05",
+          "n": 935,
+          "negative": 28.0,
+          "neutral": 29.8,
+          "positive": 42.1
+        },
+        {
+          "period": "2025-06",
+          "n": 940,
+          "negative": 28.1,
+          "neutral": 28.1,
+          "positive": 43.8
+        },
+        {
+          "period": "2025-07",
+          "n": 933,
+          "negative": 27.5,
+          "neutral": 27.3,
+          "positive": 45.1
+        },
+        {
+          "period": "2025-08",
+          "n": 941,
+          "negative": 27.7,
+          "neutral": 28.9,
+          "positive": 43.4
+        },
+        {
+          "period": "2025-09",
+          "n": 941,
+          "negative": 27.6,
+          "neutral": 29.2,
+          "positive": 43.1
+        },
+        {
+          "period": "2025-10",
+          "n": 787,
+          "negative": 23.8,
+          "neutral": 29.4,
+          "positive": 46.9
+        },
+        {
+          "period": "2025-11",
+          "n": 941,
+          "negative": 28.2,
+          "neutral": 27.0,
+          "positive": 44.8
+        },
+        {
+          "period": "2025-12",
+          "n": 934,
+          "negative": 28.9,
+          "neutral": 28.2,
+          "positive": 42.9
+        },
+        {
+          "period": "2026-01",
+          "n": 932,
+          "negative": 28.4,
+          "neutral": 29.9,
+          "positive": 41.6
+        },
+        {
+          "period": "2026-02",
+          "n": 928,
+          "negative": 26.9,
+          "neutral": 30.5,
+          "positive": 42.6
+        },
+        {
+          "period": "2026-03",
+          "n": 793,
+          "negative": 22.1,
+          "neutral": 29.3,
+          "positive": 48.7
+        },
+        {
+          "period": "2026-04",
+          "n": 931,
+          "negative": 26.9,
+          "neutral": 29.1,
+          "positive": 44.0
+        },
+        {
+          "period": "2026-05",
+          "n": 930,
+          "negative": 29.4,
+          "neutral": 27.7,
+          "positive": 42.9
+        },
+        {
+          "period": "2026-06",
+          "n": 925,
+          "negative": 29.3,
+          "neutral": 29.3,
+          "positive": 41.4
+        },
+        {
+          "period": "2026-07",
+          "n": 937,
+          "negative": 27.9,
+          "neutral": 28.9,
+          "positive": 43.2
+        },
+        {
+          "period": "2026-08",
+          "n": 938,
+          "negative": 27.9,
+          "neutral": 29.4,
+          "positive": 42.6
+        },
+        {
+          "period": "2026-09",
+          "n": 935,
+          "negative": 26.6,
+          "neutral": 29.7,
+          "positive": 43.6
+        }
+      ],
+      "covid19": [
+        {
+          "period": "2023-10",
+          "n": 345,
+          "negative": 41.2,
+          "neutral": 27.2,
+          "positive": 31.6
+        },
+        {
+          "period": "2023-11",
+          "n": 340,
+          "negative": 42.1,
+          "neutral": 27.1,
+          "positive": 30.9
+        },
+        {
+          "period": "2023-12",
+          "n": 346,
+          "negative": 46.8,
+          "neutral": 24.9,
+          "positive": 28.3
+        },
+        {
+          "period": "2024-01",
+          "n": 343,
+          "negative": 45.8,
+          "neutral": 27.7,
+          "positive": 26.5
+        },
+        {
+          "period": "2024-02",
+          "n": 345,
+          "negative": 40.9,
+          "neutral": 30.4,
+          "positive": 28.7
+        },
+        {
+          "period": "2024-03",
+          "n": 346,
+          "negative": 43.6,
+          "neutral": 26.6,
+          "positive": 29.8
+        },
+        {
+          "period": "2024-04",
+          "n": 346,
+          "negative": 45.1,
+          "neutral": 25.1,
+          "positive": 29.8
+        },
+        {
+          "period": "2024-05",
+          "n": 342,
+          "negative": 42.4,
+          "neutral": 27.5,
+          "positive": 30.1
+        },
+        {
+          "period": "2024-06",
+          "n": 344,
+          "negative": 44.2,
+          "neutral": 28.5,
+          "positive": 27.3
+        },
+        {
+          "period": "2024-07",
+          "n": 345,
+          "negative": 45.8,
+          "neutral": 25.5,
+          "positive": 28.7
+        },
+        {
+          "period": "2024-08",
+          "n": 352,
+          "negative": 43.2,
+          "neutral": 26.7,
+          "positive": 30.1
+        },
+        {
+          "period": "2024-09",
+          "n": 341,
+          "negative": 46.6,
+          "neutral": 26.4,
+          "positive": 27.0
+        },
+        {
+          "period": "2024-10",
+          "n": 348,
+          "negative": 43.4,
+          "neutral": 25.9,
+          "positive": 30.7
+        },
+        {
+          "period": "2024-11",
+          "n": 354,
+          "negative": 41.0,
+          "neutral": 27.1,
+          "positive": 31.9
+        },
+        {
+          "period": "2024-12",
+          "n": 339,
+          "negative": 42.8,
+          "neutral": 28.9,
+          "positive": 28.3
+        },
+        {
+          "period": "2025-01",
+          "n": 342,
+          "negative": 40.4,
+          "neutral": 27.8,
+          "positive": 31.9
+        },
+        {
+          "period": "2025-02",
+          "n": 357,
+          "negative": 40.9,
+          "neutral": 25.8,
+          "positive": 33.3
+        },
+        {
+          "period": "2025-03",
+          "n": 340,
+          "negative": 42.4,
+          "neutral": 27.1,
+          "positive": 30.6
+        },
+        {
+          "period": "2025-04",
+          "n": 347,
+          "negative": 41.2,
+          "neutral": 26.2,
+          "positive": 32.6
+        },
+        {
+          "period": "2025-05",
+          "n": 343,
+          "negative": 42.6,
+          "neutral": 30.0,
+          "positive": 27.4
+        },
+        {
+          "period": "2025-06",
+          "n": 341,
+          "negative": 43.7,
+          "neutral": 27.6,
+          "positive": 28.7
+        },
+        {
+          "period": "2025-07",
+          "n": 349,
+          "negative": 41.0,
+          "neutral": 25.5,
+          "positive": 33.5
+        },
+        {
+          "period": "2025-08",
+          "n": 347,
+          "negative": 42.1,
+          "neutral": 27.7,
+          "positive": 30.3
+        },
+        {
+          "period": "2025-09",
+          "n": 341,
+          "negative": 42.8,
+          "neutral": 26.7,
+          "positive": 30.5
+        },
+        {
+          "period": "2025-10",
+          "n": 204,
+          "negative": 38.2,
+          "neutral": 28.4,
+          "positive": 33.3
+        },
+        {
+          "period": "2025-11",
+          "n": 344,
+          "negative": 41.0,
+          "neutral": 25.0,
+          "positive": 34.0
+        },
+        {
+          "period": "2025-12",
+          "n": 343,
+          "negative": 42.9,
+          "neutral": 26.2,
+          "positive": 30.9
+        },
+        {
+          "period": "2026-01",
+          "n": 343,
+          "negative": 42.3,
+          "neutral": 26.8,
+          "positive": 30.9
+        },
+        {
+          "period": "2026-02",
+          "n": 345,
+          "negative": 39.1,
+          "neutral": 29.9,
+          "positive": 31.0
+        },
+        {
+          "period": "2026-03",
+          "n": 202,
+          "negative": 35.1,
+          "neutral": 27.2,
+          "positive": 37.6
+        },
+        {
+          "period": "2026-04",
+          "n": 345,
+          "negative": 40.0,
+          "neutral": 28.4,
+          "positive": 31.6
+        },
+        {
+          "period": "2026-05",
+          "n": 347,
+          "negative": 44.4,
+          "neutral": 23.3,
+          "positive": 32.3
+        },
+        {
+          "period": "2026-06",
+          "n": 347,
+          "negative": 44.4,
+          "neutral": 26.2,
+          "positive": 29.4
+        },
+        {
+          "period": "2026-07",
+          "n": 342,
+          "negative": 43.9,
+          "neutral": 25.4,
+          "positive": 30.7
+        },
+        {
+          "period": "2026-08",
+          "n": 342,
+          "negative": 43.6,
+          "neutral": 26.0,
+          "positive": 30.4
+        },
+        {
+          "period": "2026-09",
+          "n": 339,
+          "negative": 41.6,
+          "neutral": 26.0,
+          "positive": 32.4
+        }
+      ],
+      "mmr": [
+        {
+          "period": "2023-10",
+          "n": 289,
+          "negative": 24.9,
+          "neutral": 26.3,
+          "positive": 48.8
+        },
+        {
+          "period": "2023-11",
+          "n": 293,
+          "negative": 25.6,
+          "neutral": 29.7,
+          "positive": 44.7
+        },
+        {
+          "period": "2023-12",
+          "n": 303,
+          "negative": 26.4,
+          "neutral": 27.7,
+          "positive": 45.9
+        },
+        {
+          "period": "2024-01",
+          "n": 299,
+          "negative": 28.4,
+          "neutral": 28.8,
+          "positive": 42.8
+        },
+        {
+          "period": "2024-02",
+          "n": 312,
+          "negative": 27.2,
+          "neutral": 26.0,
+          "positive": 46.8
+        },
+        {
+          "period": "2024-03",
+          "n": 313,
+          "negative": 27.5,
+          "neutral": 25.9,
+          "positive": 46.6
+        },
+        {
+          "period": "2024-04",
+          "n": 294,
+          "negative": 27.6,
+          "neutral": 26.2,
+          "positive": 46.3
+        },
+        {
+          "period": "2024-05",
+          "n": 281,
+          "negative": 28.8,
+          "neutral": 27.0,
+          "positive": 44.1
+        },
+        {
+          "period": "2024-06",
+          "n": 285,
+          "negative": 27.4,
+          "neutral": 28.1,
+          "positive": 44.6
+        },
+        {
+          "period": "2024-07",
+          "n": 280,
+          "negative": 28.2,
+          "neutral": 26.4,
+          "positive": 45.4
+        },
+        {
+          "period": "2024-08",
+          "n": 300,
+          "negative": 22.3,
+          "neutral": 28.3,
+          "positive": 49.3
+        },
+        {
+          "period": "2024-09",
+          "n": 294,
+          "negative": 24.8,
+          "neutral": 28.2,
+          "positive": 46.9
+        },
+        {
+          "period": "2024-10",
+          "n": 284,
+          "negative": 25.4,
+          "neutral": 24.6,
+          "positive": 50.0
+        },
+        {
+          "period": "2024-11",
+          "n": 297,
+          "negative": 25.6,
+          "neutral": 27.6,
+          "positive": 46.8
+        },
+        {
+          "period": "2024-12",
+          "n": 292,
+          "negative": 27.1,
+          "neutral": 27.1,
+          "positive": 45.9
+        },
+        {
+          "period": "2025-01",
+          "n": 276,
+          "negative": 28.3,
+          "neutral": 25.7,
+          "positive": 46.0
+        },
+        {
+          "period": "2025-02",
+          "n": 275,
+          "negative": 24.4,
+          "neutral": 26.9,
+          "positive": 48.7
+        },
+        {
+          "period": "2025-03",
+          "n": 287,
+          "negative": 25.4,
+          "neutral": 24.7,
+          "positive": 49.8
+        },
+        {
+          "period": "2025-04",
+          "n": 294,
+          "negative": 28.2,
+          "neutral": 25.9,
+          "positive": 45.9
+        },
+        {
+          "period": "2025-05",
+          "n": 307,
+          "negative": 25.7,
+          "neutral": 24.8,
+          "positive": 49.5
+        },
+        {
+          "period": "2025-06",
+          "n": 298,
+          "negative": 25.2,
+          "neutral": 25.2,
+          "positive": 49.7
+        },
+        {
+          "period": "2025-07",
+          "n": 287,
+          "negative": 25.1,
+          "neutral": 24.0,
+          "positive": 50.9
+        },
+        {
+          "period": "2025-08",
+          "n": 284,
+          "negative": 25.7,
+          "neutral": 23.9,
+          "positive": 50.4
+        },
+        {
+          "period": "2025-09",
+          "n": 268,
+          "negative": 26.5,
+          "neutral": 23.9,
+          "positive": 49.6
+        },
+        {
+          "period": "2025-10",
+          "n": 285,
+          "negative": 24.9,
+          "neutral": 23.9,
+          "positive": 51.2
+        },
+        {
+          "period": "2025-11",
+          "n": 288,
+          "negative": 27.1,
+          "neutral": 23.3,
+          "positive": 49.7
+        },
+        {
+          "period": "2025-12",
+          "n": 287,
+          "negative": 27.9,
+          "neutral": 25.1,
+          "positive": 47.0
+        },
+        {
+          "period": "2026-01",
+          "n": 268,
+          "negative": 29.9,
+          "neutral": 24.6,
+          "positive": 45.5
+        },
+        {
+          "period": "2026-02",
+          "n": 261,
+          "negative": 28.4,
+          "neutral": 23.8,
+          "positive": 47.9
+        },
+        {
+          "period": "2026-03",
+          "n": 262,
+          "negative": 24.0,
+          "neutral": 23.3,
+          "positive": 52.7
+        },
+        {
+          "period": "2026-04",
+          "n": 266,
+          "negative": 25.9,
+          "neutral": 23.7,
+          "positive": 50.4
+        },
+        {
+          "period": "2026-05",
+          "n": 277,
+          "negative": 29.6,
+          "neutral": 24.2,
+          "positive": 46.2
+        },
+        {
+          "period": "2026-06",
+          "n": 279,
+          "negative": 28.7,
+          "neutral": 24.4,
+          "positive": 47.0
+        },
+        {
+          "period": "2026-07",
+          "n": 275,
+          "negative": 24.4,
+          "neutral": 24.0,
+          "positive": 51.6
+        },
+        {
+          "period": "2026-08",
+          "n": 279,
+          "negative": 26.2,
+          "neutral": 25.4,
+          "positive": 48.4
+        },
+        {
+          "period": "2026-09",
+          "n": 273,
+          "negative": 24.2,
+          "neutral": 24.5,
+          "positive": 51.3
+        }
+      ],
+      "hpv": [
+        {
+          "period": "2023-10",
+          "n": 255,
+          "negative": 16.1,
+          "neutral": 27.1,
+          "positive": 56.9
+        },
+        {
+          "period": "2023-11",
+          "n": 258,
+          "negative": 17.1,
+          "neutral": 27.9,
+          "positive": 55.0
+        },
+        {
+          "period": "2023-12",
+          "n": 253,
+          "negative": 17.0,
+          "neutral": 24.5,
+          "positive": 58.5
+        },
+        {
+          "period": "2024-01",
+          "n": 251,
+          "negative": 16.7,
+          "neutral": 25.5,
+          "positive": 57.8
+        },
+        {
+          "period": "2024-02",
+          "n": 248,
+          "negative": 16.5,
+          "neutral": 25.4,
+          "positive": 58.1
+        },
+        {
+          "period": "2024-03",
+          "n": 264,
+          "negative": 16.3,
+          "neutral": 27.7,
+          "positive": 56.1
+        },
+        {
+          "period": "2024-04",
+          "n": 257,
+          "negative": 16.0,
+          "neutral": 23.3,
+          "positive": 60.7
+        },
+        {
+          "period": "2024-05",
+          "n": 254,
+          "negative": 15.4,
+          "neutral": 27.6,
+          "positive": 57.1
+        },
+        {
+          "period": "2024-06",
+          "n": 253,
+          "negative": 17.0,
+          "neutral": 26.9,
+          "positive": 56.1
+        },
+        {
+          "period": "2024-07",
+          "n": 256,
+          "negative": 18.8,
+          "neutral": 25.8,
+          "positive": 55.5
+        },
+        {
+          "period": "2024-08",
+          "n": 253,
+          "negative": 16.6,
+          "neutral": 26.5,
+          "positive": 56.9
+        },
+        {
+          "period": "2024-09",
+          "n": 260,
+          "negative": 15.0,
+          "neutral": 25.4,
+          "positive": 59.6
+        },
+        {
+          "period": "2024-10",
+          "n": 257,
+          "negative": 14.8,
+          "neutral": 27.2,
+          "positive": 58.0
+        },
+        {
+          "period": "2024-11",
+          "n": 254,
+          "negative": 17.3,
+          "neutral": 24.4,
+          "positive": 58.3
+        },
+        {
+          "period": "2024-12",
+          "n": 246,
+          "negative": 16.7,
+          "neutral": 27.6,
+          "positive": 55.7
+        },
+        {
+          "period": "2025-01",
+          "n": 242,
+          "negative": 16.9,
+          "neutral": 25.6,
+          "positive": 57.4
+        },
+        {
+          "period": "2025-02",
+          "n": 245,
+          "negative": 17.6,
+          "neutral": 27.3,
+          "positive": 55.1
+        },
+        {
+          "period": "2025-03",
+          "n": 250,
+          "negative": 15.6,
+          "neutral": 28.0,
+          "positive": 56.4
+        },
+        {
+          "period": "2025-04",
+          "n": 254,
+          "negative": 15.7,
+          "neutral": 26.4,
+          "positive": 57.9
+        },
+        {
+          "period": "2025-05",
+          "n": 245,
+          "negative": 14.7,
+          "neutral": 26.1,
+          "positive": 59.2
+        },
+        {
+          "period": "2025-06",
+          "n": 249,
+          "negative": 16.1,
+          "neutral": 25.3,
+          "positive": 58.6
+        },
+        {
+          "period": "2025-07",
+          "n": 256,
+          "negative": 15.6,
+          "neutral": 25.8,
+          "positive": 58.6
+        },
+        {
+          "period": "2025-08",
+          "n": 244,
+          "negative": 16.4,
+          "neutral": 25.0,
+          "positive": 58.6
+        },
+        {
+          "period": "2025-09",
+          "n": 252,
+          "negative": 17.5,
+          "neutral": 25.8,
+          "positive": 56.7
+        },
+        {
+          "period": "2025-10",
+          "n": 251,
+          "negative": 16.7,
+          "neutral": 25.5,
+          "positive": 57.8
+        },
+        {
+          "period": "2025-11",
+          "n": 259,
+          "negative": 17.0,
+          "neutral": 25.9,
+          "positive": 57.1
+        },
+        {
+          "period": "2025-12",
+          "n": 256,
+          "negative": 16.0,
+          "neutral": 25.4,
+          "positive": 58.6
+        },
+        {
+          "period": "2026-01",
+          "n": 250,
+          "negative": 16.8,
+          "neutral": 27.6,
+          "positive": 55.6
+        },
+        {
+          "period": "2026-02",
+          "n": 246,
+          "negative": 17.9,
+          "neutral": 26.4,
+          "positive": 55.7
+        },
+        {
+          "period": "2026-03",
+          "n": 242,
+          "negative": 16.5,
+          "neutral": 22.7,
+          "positive": 60.7
+        },
+        {
+          "period": "2026-04",
+          "n": 239,
+          "negative": 17.6,
+          "neutral": 23.8,
+          "positive": 58.6
+        },
+        {
+          "period": "2026-05",
+          "n": 247,
+          "negative": 17.4,
+          "neutral": 25.9,
+          "positive": 56.7
+        },
+        {
+          "period": "2026-06",
+          "n": 247,
+          "negative": 17.8,
+          "neutral": 27.9,
+          "positive": 54.3
+        },
+        {
+          "period": "2026-07",
+          "n": 248,
+          "negative": 18.1,
+          "neutral": 25.8,
+          "positive": 56.0
+        },
+        {
+          "period": "2026-08",
+          "n": 251,
+          "negative": 16.3,
+          "neutral": 25.9,
+          "positive": 57.8
+        },
+        {
+          "period": "2026-09",
+          "n": 244,
+          "negative": 16.4,
+          "neutral": 27.0,
+          "positive": 56.6
+        }
+      ],
+      "polio": [
+        {
+          "period": "2023-10",
+          "n": 191,
+          "negative": 25.1,
+          "neutral": 28.3,
+          "positive": 46.6
+        },
+        {
+          "period": "2023-11",
+          "n": 188,
+          "negative": 26.6,
+          "neutral": 28.2,
+          "positive": 45.2
+        },
+        {
+          "period": "2023-12",
+          "n": 178,
+          "negative": 28.7,
+          "neutral": 25.3,
+          "positive": 46.1
+        },
+        {
+          "period": "2024-01",
+          "n": 177,
+          "negative": 28.8,
+          "neutral": 28.2,
+          "positive": 42.9
+        },
+        {
+          "period": "2024-02",
+          "n": 174,
+          "negative": 29.9,
+          "neutral": 25.3,
+          "positive": 44.8
+        },
+        {
+          "period": "2024-03",
+          "n": 175,
+          "negative": 30.3,
+          "neutral": 23.4,
+          "positive": 46.3
+        },
+        {
+          "period": "2024-04",
+          "n": 179,
+          "negative": 29.1,
+          "neutral": 23.5,
+          "positive": 47.5
+        },
+        {
+          "period": "2024-05",
+          "n": 190,
+          "negative": 25.8,
+          "neutral": 27.4,
+          "positive": 46.8
+        },
+        {
+          "period": "2024-06",
+          "n": 181,
+          "negative": 26.0,
+          "neutral": 26.5,
+          "positive": 47.5
+        },
+        {
+          "period": "2024-07",
+          "n": 183,
+          "negative": 29.0,
+          "neutral": 25.1,
+          "positive": 45.9
+        },
+        {
+          "period": "2024-08",
+          "n": 188,
+          "negative": 21.8,
+          "neutral": 24.5,
+          "positive": 53.7
+        },
+        {
+          "period": "2024-09",
+          "n": 180,
+          "negative": 23.9,
+          "neutral": 27.2,
+          "positive": 48.9
+        },
+        {
+          "period": "2024-10",
+          "n": 197,
+          "negative": 22.8,
+          "neutral": 26.4,
+          "positive": 50.8
+        },
+        {
+          "period": "2024-11",
+          "n": 181,
+          "negative": 27.6,
+          "neutral": 26.0,
+          "positive": 46.4
+        },
+        {
+          "period": "2024-12",
+          "n": 177,
+          "negative": 27.7,
+          "neutral": 26.0,
+          "positive": 46.3
+        },
+        {
+          "period": "2025-01",
+          "n": 180,
+          "negative": 27.2,
+          "neutral": 25.6,
+          "positive": 47.2
+        },
+        {
+          "period": "2025-02",
+          "n": 182,
+          "negative": 25.3,
+          "neutral": 24.2,
+          "positive": 50.5
+        },
+        {
+          "period": "2025-03",
+          "n": 194,
+          "negative": 24.2,
+          "neutral": 23.7,
+          "positive": 52.1
+        },
+        {
+          "period": "2025-04",
+          "n": 191,
+          "negative": 28.8,
+          "neutral": 27.2,
+          "positive": 44.0
+        },
+        {
+          "period": "2025-05",
+          "n": 190,
+          "negative": 26.3,
+          "neutral": 26.8,
+          "positive": 46.8
+        },
+        {
+          "period": "2025-06",
+          "n": 191,
+          "negative": 23.6,
+          "neutral": 26.7,
+          "positive": 49.7
+        },
+        {
+          "period": "2025-07",
+          "n": 203,
+          "negative": 23.2,
+          "neutral": 25.1,
+          "positive": 51.7
+        },
+        {
+          "period": "2025-08",
+          "n": 191,
+          "negative": 24.1,
+          "neutral": 27.2,
+          "positive": 48.7
+        },
+        {
+          "period": "2025-09",
+          "n": 187,
+          "negative": 24.1,
+          "neutral": 27.8,
+          "positive": 48.1
+        },
+        {
+          "period": "2025-10",
+          "n": 182,
+          "negative": 23.6,
+          "neutral": 23.6,
+          "positive": 52.7
+        },
+        {
+          "period": "2025-11",
+          "n": 191,
+          "negative": 26.2,
+          "neutral": 22.5,
+          "positive": 51.3
+        },
+        {
+          "period": "2025-12",
+          "n": 177,
+          "negative": 29.4,
+          "neutral": 21.5,
+          "positive": 49.2
+        },
+        {
+          "period": "2026-01",
+          "n": 174,
+          "negative": 29.3,
+          "neutral": 26.4,
+          "positive": 44.3
+        },
+        {
+          "period": "2026-02",
+          "n": 184,
+          "negative": 27.2,
+          "neutral": 27.2,
+          "positive": 45.7
+        },
+        {
+          "period": "2026-03",
+          "n": 186,
+          "negative": 24.7,
+          "neutral": 24.2,
+          "positive": 51.1
+        },
+        {
+          "period": "2026-04",
+          "n": 190,
+          "negative": 26.8,
+          "neutral": 27.9,
+          "positive": 45.3
+        },
+        {
+          "period": "2026-05",
+          "n": 190,
+          "negative": 25.8,
+          "neutral": 26.8,
+          "positive": 47.4
+        },
+        {
+          "period": "2026-06",
+          "n": 186,
+          "negative": 26.3,
+          "neutral": 27.4,
+          "positive": 46.2
+        },
+        {
+          "period": "2026-07",
+          "n": 198,
+          "negative": 22.7,
+          "neutral": 27.3,
+          "positive": 50.0
+        },
+        {
+          "period": "2026-08",
+          "n": 197,
+          "negative": 24.4,
+          "neutral": 26.9,
+          "positive": 48.7
+        },
+        {
+          "period": "2026-09",
+          "n": 192,
+          "negative": 22.9,
+          "neutral": 25.5,
+          "positive": 51.6
+        }
+      ],
+      "hepatitis_b": [
+        {
+          "period": "2023-10",
+          "n": 212,
+          "negative": 28.3,
+          "neutral": 30.2,
+          "positive": 41.5
+        },
+        {
+          "period": "2023-11",
+          "n": 213,
+          "negative": 29.1,
+          "neutral": 33.3,
+          "positive": 37.6
+        },
+        {
+          "period": "2023-12",
+          "n": 214,
+          "negative": 29.4,
+          "neutral": 30.8,
+          "positive": 39.7
+        },
+        {
+          "period": "2024-01",
+          "n": 207,
+          "negative": 30.9,
+          "neutral": 30.4,
+          "positive": 38.6
+        },
+        {
+          "period": "2024-02",
+          "n": 204,
+          "negative": 29.4,
+          "neutral": 28.4,
+          "positive": 42.2
+        },
+        {
+          "period": "2024-03",
+          "n": 207,
+          "negative": 30.4,
+          "neutral": 28.0,
+          "positive": 41.5
+        },
+        {
+          "period": "2024-04",
+          "n": 210,
+          "negative": 28.1,
+          "neutral": 29.0,
+          "positive": 42.9
+        },
+        {
+          "period": "2024-05",
+          "n": 211,
+          "negative": 29.9,
+          "neutral": 28.9,
+          "positive": 41.2
+        },
+        {
+          "period": "2024-06",
+          "n": 214,
+          "negative": 29.9,
+          "neutral": 29.0,
+          "positive": 41.1
+        },
+        {
+          "period": "2024-07",
+          "n": 209,
+          "negative": 31.6,
+          "neutral": 28.7,
+          "positive": 39.7
+        },
+        {
+          "period": "2024-08",
+          "n": 209,
+          "negative": 27.8,
+          "neutral": 30.6,
+          "positive": 41.6
+        },
+        {
+          "period": "2024-09",
+          "n": 198,
+          "negative": 27.8,
+          "neutral": 32.3,
+          "positive": 39.9
+        },
+        {
+          "period": "2024-10",
+          "n": 209,
+          "negative": 29.2,
+          "neutral": 28.7,
+          "positive": 42.1
+        },
+        {
+          "period": "2024-11",
+          "n": 197,
+          "negative": 30.5,
+          "neutral": 29.9,
+          "positive": 39.6
+        },
+        {
+          "period": "2024-12",
+          "n": 206,
+          "negative": 34.5,
+          "neutral": 30.6,
+          "positive": 35.0
+        },
+        {
+          "period": "2025-01",
+          "n": 204,
+          "negative": 31.4,
+          "neutral": 28.4,
+          "positive": 40.2
+        },
+        {
+          "period": "2025-02",
+          "n": 204,
+          "negative": 29.4,
+          "neutral": 28.4,
+          "positive": 42.2
+        },
+        {
+          "period": "2025-03",
+          "n": 205,
+          "negative": 29.3,
+          "neutral": 26.8,
+          "positive": 43.9
+        },
+        {
+          "period": "2025-04",
+          "n": 207,
+          "negative": 30.4,
+          "neutral": 30.4,
+          "positive": 39.1
+        },
+        {
+          "period": "2025-05",
+          "n": 206,
+          "negative": 28.2,
+          "neutral": 28.2,
+          "positive": 43.7
+        },
+        {
+          "period": "2025-06",
+          "n": 217,
+          "negative": 28.1,
+          "neutral": 30.0,
+          "positive": 41.9
+        },
+        {
+          "period": "2025-07",
+          "n": 213,
+          "negative": 28.2,
+          "neutral": 28.2,
+          "positive": 43.7
+        },
+        {
+          "period": "2025-08",
+          "n": 201,
+          "negative": 29.4,
+          "neutral": 29.4,
+          "positive": 41.3
+        },
+        {
+          "period": "2025-09",
+          "n": 208,
+          "negative": 29.3,
+          "neutral": 32.2,
+          "positive": 38.5
+        },
+        {
+          "period": "2025-10",
+          "n": 206,
+          "negative": 28.2,
+          "neutral": 29.1,
+          "positive": 42.7
+        },
+        {
+          "period": "2025-11",
+          "n": 213,
+          "negative": 30.5,
+          "neutral": 28.6,
+          "positive": 40.8
+        },
+        {
+          "period": "2025-12",
+          "n": 200,
+          "negative": 30.5,
+          "neutral": 27.5,
+          "positive": 42.0
+        },
+        {
+          "period": "2026-01",
+          "n": 197,
+          "negative": 31.0,
+          "neutral": 29.9,
+          "positive": 39.1
+        },
+        {
+          "period": "2026-02",
+          "n": 198,
+          "negative": 31.8,
+          "neutral": 30.3,
+          "positive": 37.9
+        },
+        {
+          "period": "2026-03",
+          "n": 206,
+          "negative": 28.6,
+          "neutral": 29.6,
+          "positive": 41.7
+        },
+        {
+          "period": "2026-04",
+          "n": 211,
+          "negative": 29.4,
+          "neutral": 30.8,
+          "positive": 39.8
+        },
+        {
+          "period": "2026-05",
+          "n": 218,
+          "negative": 28.9,
+          "neutral": 28.0,
+          "positive": 43.1
+        },
+        {
+          "period": "2026-06",
+          "n": 219,
+          "negative": 28.8,
+          "neutral": 29.7,
+          "positive": 41.6
+        },
+        {
+          "period": "2026-07",
+          "n": 215,
+          "negative": 27.4,
+          "neutral": 27.4,
+          "positive": 45.1
+        },
+        {
+          "period": "2026-08",
+          "n": 210,
+          "negative": 28.6,
+          "neutral": 29.0,
+          "positive": 42.4
+        },
+        {
+          "period": "2026-09",
+          "n": 205,
+          "negative": 29.8,
+          "neutral": 27.3,
+          "positive": 42.9
+        }
+      ],
+      "hepatitis_a": [
+        {
+          "period": "2023-10",
+          "n": 112,
+          "negative": 35.7,
+          "neutral": 34.8,
+          "positive": 29.5
+        },
+        {
+          "period": "2023-11",
+          "n": 109,
+          "negative": 34.9,
+          "neutral": 36.7,
+          "positive": 28.4
+        },
+        {
+          "period": "2023-12",
+          "n": 105,
+          "negative": 36.2,
+          "neutral": 34.3,
+          "positive": 29.5
+        },
+        {
+          "period": "2024-01",
+          "n": 109,
+          "negative": 36.7,
+          "neutral": 34.9,
+          "positive": 28.4
+        },
+        {
+          "period": "2024-02",
+          "n": 112,
+          "negative": 36.6,
+          "neutral": 31.2,
+          "positive": 32.1
+        },
+        {
+          "period": "2024-03",
+          "n": 112,
+          "negative": 36.6,
+          "neutral": 30.4,
+          "positive": 33.0
+        },
+        {
+          "period": "2024-04",
+          "n": 108,
+          "negative": 34.3,
+          "neutral": 36.1,
+          "positive": 29.6
+        },
+        {
+          "period": "2024-05",
+          "n": 104,
+          "negative": 37.5,
+          "neutral": 33.7,
+          "positive": 28.8
+        },
+        {
+          "period": "2024-06",
+          "n": 108,
+          "negative": 36.1,
+          "neutral": 34.3,
+          "positive": 29.6
+        },
+        {
+          "period": "2024-07",
+          "n": 100,
+          "negative": 39.0,
+          "neutral": 34.0,
+          "positive": 27.0
+        },
+        {
+          "period": "2024-08",
+          "n": 108,
+          "negative": 33.3,
+          "neutral": 37.0,
+          "positive": 29.6
+        },
+        {
+          "period": "2024-09",
+          "n": 102,
+          "negative": 34.3,
+          "neutral": 34.3,
+          "positive": 31.4
+        },
+        {
+          "period": "2024-10",
+          "n": 102,
+          "negative": 36.3,
+          "neutral": 35.3,
+          "positive": 28.4
+        },
+        {
+          "period": "2024-11",
+          "n": 106,
+          "negative": 36.8,
+          "neutral": 35.8,
+          "positive": 27.4
+        },
+        {
+          "period": "2024-12",
+          "n": 100,
+          "negative": 41.0,
+          "neutral": 33.0,
+          "positive": 26.0
+        },
+        {
+          "period": "2025-01",
+          "n": 104,
+          "negative": 37.5,
+          "neutral": 32.7,
+          "positive": 29.8
+        },
+        {
+          "period": "2025-02",
+          "n": 103,
+          "negative": 35.0,
+          "neutral": 33.0,
+          "positive": 32.0
+        },
+        {
+          "period": "2025-03",
+          "n": 105,
+          "negative": 35.2,
+          "neutral": 33.3,
+          "positive": 31.4
+        },
+        {
+          "period": "2025-04",
+          "n": 108,
+          "negative": 37.0,
+          "neutral": 35.2,
+          "positive": 27.8
+        },
+        {
+          "period": "2025-05",
+          "n": 104,
+          "negative": 33.7,
+          "neutral": 34.6,
+          "positive": 31.7
+        },
+        {
+          "period": "2025-06",
+          "n": 102,
+          "negative": 34.3,
+          "neutral": 34.3,
+          "positive": 31.4
+        },
+        {
+          "period": "2025-07",
+          "n": 105,
+          "negative": 37.1,
+          "neutral": 34.3,
+          "positive": 28.6
+        },
+        {
+          "period": "2025-08",
+          "n": 102,
+          "negative": 36.3,
+          "neutral": 33.3,
+          "positive": 30.4
+        },
+        {
+          "period": "2025-09",
+          "n": 100,
+          "negative": 36.0,
+          "neutral": 35.0,
+          "positive": 29.0
+        },
+        {
+          "period": "2025-10",
+          "n": 99,
+          "negative": 36.4,
+          "neutral": 36.4,
+          "positive": 27.3
+        },
+        {
+          "period": "2025-11",
+          "n": 105,
+          "negative": 37.1,
+          "neutral": 32.4,
+          "positive": 30.5
+        },
+        {
+          "period": "2025-12",
+          "n": 109,
+          "negative": 35.8,
+          "neutral": 33.9,
+          "positive": 30.3
+        },
+        {
+          "period": "2026-01",
+          "n": 100,
+          "negative": 38.0,
+          "neutral": 35.0,
+          "positive": 27.0
+        },
+        {
+          "period": "2026-02",
+          "n": 99,
+          "negative": 38.4,
+          "neutral": 33.3,
+          "positive": 28.3
+        },
+        {
+          "period": "2026-03",
+          "n": 91,
+          "negative": 34.1,
+          "neutral": 33.0,
+          "positive": 33.0
+        },
+        {
+          "period": "2026-04",
+          "n": 97,
+          "negative": 36.1,
+          "neutral": 37.1,
+          "positive": 26.8
+        },
+        {
+          "period": "2026-05",
+          "n": 97,
+          "negative": 39.2,
+          "neutral": 33.0,
+          "positive": 27.8
+        },
+        {
+          "period": "2026-06",
+          "n": 103,
+          "negative": 36.9,
+          "neutral": 36.9,
+          "positive": 26.2
+        },
+        {
+          "period": "2026-07",
+          "n": 105,
+          "negative": 36.2,
+          "neutral": 32.4,
+          "positive": 31.4
+        },
+        {
+          "period": "2026-08",
+          "n": 103,
+          "negative": 35.0,
+          "neutral": 35.9,
+          "positive": 29.1
+        },
+        {
+          "period": "2026-09",
+          "n": 103,
+          "negative": 35.9,
+          "neutral": 33.0,
+          "positive": 31.1
+        }
+      ],
+      "chickenpox": [
+        {
+          "period": "2023-10",
+          "n": 169,
+          "negative": 21.9,
+          "neutral": 37.9,
+          "positive": 40.2
+        },
+        {
+          "period": "2023-11",
+          "n": 164,
+          "negative": 23.8,
+          "neutral": 38.4,
+          "positive": 37.8
+        },
+        {
+          "period": "2023-12",
+          "n": 161,
+          "negative": 23.6,
+          "neutral": 37.3,
+          "positive": 39.1
+        },
+        {
+          "period": "2024-01",
+          "n": 160,
+          "negative": 25.6,
+          "neutral": 38.8,
+          "positive": 35.6
+        },
+        {
+          "period": "2024-02",
+          "n": 167,
+          "negative": 24.6,
+          "neutral": 37.1,
+          "positive": 38.3
+        },
+        {
+          "period": "2024-03",
+          "n": 167,
+          "negative": 24.6,
+          "neutral": 34.1,
+          "positive": 41.3
+        },
+        {
+          "period": "2024-04",
+          "n": 160,
+          "negative": 25.0,
+          "neutral": 36.2,
+          "positive": 38.8
+        },
+        {
+          "period": "2024-05",
+          "n": 162,
+          "negative": 24.7,
+          "neutral": 36.4,
+          "positive": 38.9
+        },
+        {
+          "period": "2024-06",
+          "n": 163,
+          "negative": 22.1,
+          "neutral": 37.4,
+          "positive": 40.5
+        },
+        {
+          "period": "2024-07",
+          "n": 158,
+          "negative": 22.8,
+          "neutral": 39.2,
+          "positive": 38.0
+        },
+        {
+          "period": "2024-08",
+          "n": 179,
+          "negative": 19.0,
+          "neutral": 36.9,
+          "positive": 44.1
+        },
+        {
+          "period": "2024-09",
+          "n": 164,
+          "negative": 20.7,
+          "neutral": 39.6,
+          "positive": 39.6
+        },
+        {
+          "period": "2024-10",
+          "n": 171,
+          "negative": 21.1,
+          "neutral": 35.1,
+          "positive": 43.9
+        },
+        {
+          "period": "2024-11",
+          "n": 165,
+          "negative": 23.6,
+          "neutral": 38.2,
+          "positive": 38.2
+        },
+        {
+          "period": "2024-12",
+          "n": 155,
+          "negative": 25.2,
+          "neutral": 38.1,
+          "positive": 36.8
+        },
+        {
+          "period": "2025-01",
+          "n": 155,
+          "negative": 24.5,
+          "neutral": 40.0,
+          "positive": 35.5
+        },
+        {
+          "period": "2025-02",
+          "n": 164,
+          "negative": 21.3,
+          "neutral": 36.6,
+          "positive": 42.1
+        },
+        {
+          "period": "2025-03",
+          "n": 172,
+          "negative": 23.3,
+          "neutral": 33.7,
+          "positive": 43.0
+        },
+        {
+          "period": "2025-04",
+          "n": 168,
+          "negative": 23.8,
+          "neutral": 38.1,
+          "positive": 38.1
+        },
+        {
+          "period": "2025-05",
+          "n": 171,
+          "negative": 22.8,
+          "neutral": 35.7,
+          "positive": 41.5
+        },
+        {
+          "period": "2025-06",
+          "n": 164,
+          "negative": 22.6,
+          "neutral": 37.8,
+          "positive": 39.6
+        },
+        {
+          "period": "2025-07",
+          "n": 165,
+          "negative": 23.0,
+          "neutral": 37.0,
+          "positive": 40.0
+        },
+        {
+          "period": "2025-08",
+          "n": 167,
+          "negative": 22.8,
+          "neutral": 35.9,
+          "positive": 41.3
+        },
+        {
+          "period": "2025-09",
+          "n": 158,
+          "negative": 22.2,
+          "neutral": 39.2,
+          "positive": 38.6
+        },
+        {
+          "period": "2025-10",
+          "n": 164,
+          "negative": 22.6,
+          "neutral": 36.0,
+          "positive": 41.5
+        },
+        {
+          "period": "2025-11",
+          "n": 168,
+          "negative": 23.2,
+          "neutral": 33.9,
+          "positive": 42.9
+        },
+        {
+          "period": "2025-12",
+          "n": 173,
+          "negative": 23.7,
+          "neutral": 36.4,
+          "positive": 39.9
+        },
+        {
+          "period": "2026-01",
+          "n": 156,
+          "negative": 25.6,
+          "neutral": 37.8,
+          "positive": 36.5
+        },
+        {
+          "period": "2026-02",
+          "n": 152,
+          "negative": 25.0,
+          "neutral": 37.5,
+          "positive": 37.5
+        },
+        {
+          "period": "2026-03",
+          "n": 145,
+          "negative": 25.5,
+          "neutral": 33.8,
+          "positive": 40.7
+        },
+        {
+          "period": "2026-04",
+          "n": 148,
+          "negative": 25.7,
+          "neutral": 36.5,
+          "positive": 37.8
+        },
+        {
+          "period": "2026-05",
+          "n": 160,
+          "negative": 25.0,
+          "neutral": 33.1,
+          "positive": 41.9
+        },
+        {
+          "period": "2026-06",
+          "n": 162,
+          "negative": 22.8,
+          "neutral": 35.8,
+          "positive": 41.4
+        },
+        {
+          "period": "2026-07",
+          "n": 164,
+          "negative": 21.3,
+          "neutral": 34.1,
+          "positive": 44.5
+        },
+        {
+          "period": "2026-08",
+          "n": 166,
+          "negative": 22.3,
+          "neutral": 38.6,
+          "positive": 39.2
+        },
+        {
+          "period": "2026-09",
+          "n": 163,
+          "negative": 22.7,
+          "neutral": 35.0,
+          "positive": 42.3
+        }
+      ],
+      "meningitis": [
+        {
+          "period": "2023-10",
+          "n": 132,
+          "negative": 28.0,
+          "neutral": 29.5,
+          "positive": 42.4
+        },
+        {
+          "period": "2023-11",
+          "n": 132,
+          "negative": 30.3,
+          "neutral": 29.5,
+          "positive": 40.2
+        },
+        {
+          "period": "2023-12",
+          "n": 138,
+          "negative": 29.0,
+          "neutral": 33.3,
+          "positive": 37.7
+        },
+        {
+          "period": "2024-01",
+          "n": 142,
+          "negative": 28.2,
+          "neutral": 33.1,
+          "positive": 38.7
+        },
+        {
+          "period": "2024-02",
+          "n": 141,
+          "negative": 28.4,
+          "neutral": 31.2,
+          "positive": 40.4
+        },
+        {
+          "period": "2024-03",
+          "n": 134,
+          "negative": 29.9,
+          "neutral": 32.8,
+          "positive": 37.3
+        },
+        {
+          "period": "2024-04",
+          "n": 129,
+          "negative": 30.2,
+          "neutral": 32.6,
+          "positive": 37.2
+        },
+        {
+          "period": "2024-05",
+          "n": 132,
+          "negative": 29.5,
+          "neutral": 30.3,
+          "positive": 40.2
+        },
+        {
+          "period": "2024-06",
+          "n": 134,
+          "negative": 28.4,
+          "neutral": 31.3,
+          "positive": 40.3
+        },
+        {
+          "period": "2024-07",
+          "n": 132,
+          "negative": 29.5,
+          "neutral": 31.1,
+          "positive": 39.4
+        },
+        {
+          "period": "2024-08",
+          "n": 137,
+          "negative": 25.5,
+          "neutral": 32.1,
+          "positive": 42.3
+        },
+        {
+          "period": "2024-09",
+          "n": 132,
+          "negative": 28.0,
+          "neutral": 31.1,
+          "positive": 40.9
+        },
+        {
+          "period": "2024-10",
+          "n": 135,
+          "negative": 26.7,
+          "neutral": 31.9,
+          "positive": 41.5
+        },
+        {
+          "period": "2024-11",
+          "n": 135,
+          "negative": 28.1,
+          "neutral": 31.1,
+          "positive": 40.7
+        },
+        {
+          "period": "2024-12",
+          "n": 138,
+          "negative": 26.8,
+          "neutral": 33.3,
+          "positive": 39.9
+        },
+        {
+          "period": "2025-01",
+          "n": 136,
+          "negative": 28.7,
+          "neutral": 32.4,
+          "positive": 39.0
+        },
+        {
+          "period": "2025-02",
+          "n": 140,
+          "negative": 25.7,
+          "neutral": 32.1,
+          "positive": 42.1
+        },
+        {
+          "period": "2025-03",
+          "n": 149,
+          "negative": 26.2,
+          "neutral": 31.5,
+          "positive": 42.3
+        },
+        {
+          "period": "2025-04",
+          "n": 139,
+          "negative": 28.8,
+          "neutral": 33.8,
+          "positive": 37.4
+        },
+        {
+          "period": "2025-05",
+          "n": 129,
+          "negative": 27.1,
+          "neutral": 31.8,
+          "positive": 41.1
+        },
+        {
+          "period": "2025-06",
+          "n": 136,
+          "negative": 27.2,
+          "neutral": 30.9,
+          "positive": 41.9
+        },
+        {
+          "period": "2025-07",
+          "n": 135,
+          "negative": 28.1,
+          "neutral": 27.4,
+          "positive": 44.4
+        },
+        {
+          "period": "2025-08",
+          "n": 143,
+          "negative": 27.3,
+          "neutral": 27.3,
+          "positive": 45.5
+        },
+        {
+          "period": "2025-09",
+          "n": 135,
+          "negative": 28.1,
+          "neutral": 31.1,
+          "positive": 40.7
+        },
+        {
+          "period": "2025-10",
+          "n": 131,
+          "negative": 29.0,
+          "neutral": 28.2,
+          "positive": 42.7
+        },
+        {
+          "period": "2025-11",
+          "n": 132,
+          "negative": 29.5,
+          "neutral": 25.8,
+          "positive": 44.7
+        },
+        {
+          "period": "2025-12",
+          "n": 131,
+          "negative": 32.8,
+          "neutral": 28.2,
+          "positive": 38.9
+        },
+        {
+          "period": "2026-01",
+          "n": 126,
+          "negative": 29.4,
+          "neutral": 28.6,
+          "positive": 42.1
+        },
+        {
+          "period": "2026-02",
+          "n": 137,
+          "negative": 28.5,
+          "neutral": 28.5,
+          "positive": 43.1
+        },
+        {
+          "period": "2026-03",
+          "n": 128,
+          "negative": 26.6,
+          "neutral": 29.7,
+          "positive": 43.8
+        },
+        {
+          "period": "2026-04",
+          "n": 132,
+          "negative": 26.5,
+          "neutral": 29.5,
+          "positive": 43.9
+        },
+        {
+          "period": "2026-05",
+          "n": 133,
+          "negative": 27.8,
+          "neutral": 27.8,
+          "positive": 44.4
+        },
+        {
+          "period": "2026-06",
+          "n": 141,
+          "negative": 27.0,
+          "neutral": 31.2,
+          "positive": 41.8
+        },
+        {
+          "period": "2026-07",
+          "n": 143,
+          "negative": 26.6,
+          "neutral": 29.4,
+          "positive": 44.1
+        },
+        {
+          "period": "2026-08",
+          "n": 138,
+          "negative": 27.5,
+          "neutral": 29.0,
+          "positive": 43.5
+        },
+        {
+          "period": "2026-09",
+          "n": 140,
+          "negative": 25.7,
+          "neutral": 31.4,
+          "positive": 42.9
+        }
+      ],
+      "tuberculosis": [
+        {
+          "period": "2023-10",
+          "n": 36,
+          "negative": 19.4,
+          "neutral": 38.9,
+          "positive": 41.7
+        },
+        {
+          "period": "2023-11",
+          "n": 36,
+          "negative": 19.4,
+          "neutral": 33.3,
+          "positive": 47.2
+        },
+        {
+          "period": "2023-12",
+          "n": 28
+        },
+        {
+          "period": "2024-01",
+          "n": 30,
+          "negative": 23.3,
+          "neutral": 30.0,
+          "positive": 46.7
+        },
+        {
+          "period": "2024-02",
+          "n": 27
+        },
+        {
+          "period": "2024-03",
+          "n": 28
+        },
+        {
+          "period": "2024-04",
+          "n": 31,
+          "negative": 22.6,
+          "neutral": 32.3,
+          "positive": 45.2
+        },
+        {
+          "period": "2024-05",
+          "n": 34,
+          "negative": 20.6,
+          "neutral": 38.2,
+          "positive": 41.2
+        },
+        {
+          "period": "2024-06",
+          "n": 35,
+          "negative": 20.0,
+          "neutral": 37.1,
+          "positive": 42.9
+        },
+        {
+          "period": "2024-07",
+          "n": 32,
+          "negative": 21.9,
+          "neutral": 34.4,
+          "positive": 43.8
+        },
+        {
+          "period": "2024-08",
+          "n": 35,
+          "negative": 17.1,
+          "neutral": 34.3,
+          "positive": 48.6
+        },
+        {
+          "period": "2024-09",
+          "n": 34,
+          "negative": 17.6,
+          "neutral": 35.3,
+          "positive": 47.1
+        },
+        {
+          "period": "2024-10",
+          "n": 30,
+          "negative": 26.7,
+          "neutral": 33.3,
+          "positive": 40.0
+        },
+        {
+          "period": "2024-11",
+          "n": 33,
+          "negative": 18.2,
+          "neutral": 39.4,
+          "positive": 42.4
+        },
+        {
+          "period": "2024-12",
+          "n": 31,
+          "negative": 19.4,
+          "neutral": 29.0,
+          "positive": 51.6
+        },
+        {
+          "period": "2025-01",
+          "n": 34,
+          "negative": 23.5,
+          "neutral": 26.5,
+          "positive": 50.0
+        },
+        {
+          "period": "2025-02",
+          "n": 32,
+          "negative": 15.6,
+          "neutral": 31.2,
+          "positive": 53.1
+        },
+        {
+          "period": "2025-03",
+          "n": 33,
+          "negative": 18.2,
+          "neutral": 36.4,
+          "positive": 45.5
+        },
+        {
+          "period": "2025-04",
+          "n": 32,
+          "negative": 28.1,
+          "neutral": 31.2,
+          "positive": 40.6
+        },
+        {
+          "period": "2025-05",
+          "n": 36,
+          "negative": 19.4,
+          "neutral": 36.1,
+          "positive": 44.4
+        },
+        {
+          "period": "2025-06",
+          "n": 37,
+          "negative": 18.9,
+          "neutral": 32.4,
+          "positive": 48.6
+        },
+        {
+          "period": "2025-07",
+          "n": 40,
+          "negative": 17.5,
+          "neutral": 30.0,
+          "positive": 52.5
+        },
+        {
+          "period": "2025-08",
+          "n": 39,
+          "negative": 20.5,
+          "neutral": 33.3,
+          "positive": 46.2
+        },
+        {
+          "period": "2025-09",
+          "n": 43,
+          "negative": 16.3,
+          "neutral": 37.2,
+          "positive": 46.5
+        },
+        {
+          "period": "2025-10",
+          "n": 39,
+          "negative": 15.4,
+          "neutral": 33.3,
+          "positive": 51.3
+        },
+        {
+          "period": "2025-11",
+          "n": 41,
+          "negative": 19.5,
+          "neutral": 34.1,
+          "positive": 46.3
+        },
+        {
+          "period": "2025-12",
+          "n": 37,
+          "negative": 18.9,
+          "neutral": 24.3,
+          "positive": 56.8
+        },
+        {
+          "period": "2026-01",
+          "n": 36,
+          "negative": 22.2,
+          "neutral": 33.3,
+          "positive": 44.4
+        },
+        {
+          "period": "2026-02",
+          "n": 35,
+          "negative": 17.1,
+          "neutral": 34.3,
+          "positive": 48.6
+        },
+        {
+          "period": "2026-03",
+          "n": 38,
+          "negative": 15.8,
+          "neutral": 39.5,
+          "positive": 44.7
+        },
+        {
+          "period": "2026-04",
+          "n": 39,
+          "negative": 15.4,
+          "neutral": 38.5,
+          "positive": 46.2
+        },
+        {
+          "period": "2026-05",
+          "n": 34,
+          "negative": 23.5,
+          "neutral": 32.4,
+          "positive": 44.1
+        },
+        {
+          "period": "2026-06",
+          "n": 41,
+          "negative": 17.1,
+          "neutral": 43.9,
+          "positive": 39.0
+        },
+        {
+          "period": "2026-07",
+          "n": 35,
+          "negative": 17.1,
+          "neutral": 48.6,
+          "positive": 34.3
+        },
+        {
+          "period": "2026-08",
+          "n": 33,
+          "negative": 21.2,
+          "neutral": 33.3,
+          "positive": 45.5
+        },
+        {
+          "period": "2026-09",
+          "n": 40,
+          "negative": 12.5,
+          "neutral": 32.5,
+          "positive": 55.0
+        }
+      ]
+    }
+  },
+  "daily": {
+    "start": "2026-09-24",
+    "end": "2026-09-30",
+    "categories": [
+      {
+        "id": "all",
+        "label": "All vaccines",
+        "n": 1320,
+        "negative": 23.9,
+        "neutral": 34.8,
+        "positive": 41.2
+      },
+      {
+        "id": "covid19",
+        "label": "COVID-19",
+        "n": 613,
+        "negative": 37.7,
+        "neutral": 33.1,
+        "positive": 29.2
+      },
+      {
+        "id": "mmr",
+        "label": "MMR",
+        "n": 252,
+        "negative": 17.9,
+        "neutral": 26.6,
+        "positive": 55.6
+      },
+      {
+        "id": "hpv",
+        "label": "HPV",
+        "n": 251,
+        "negative": 8.4,
+        "neutral": 33.5,
+        "positive": 58.2
+      },
+      {
+        "id": "polio",
+        "label": "Polio",
+        "n": 103,
+        "negative": 12.6,
+        "neutral": 34.0,
+        "positive": 53.4
+      },
+      {
+        "id": "hepatitis_b",
+        "label": "Hepatitis B",
+        "n": 101,
+        "negative": 14.9,
+        "neutral": 45.5,
+        "positive": 39.6
+      },
+      {
+        "id": "hepatitis_a",
+        "label": "Hepatitis A",
+        "n": 21
+      },
+      {
+        "id": "chickenpox",
+        "label": "Chickenpox",
+        "n": 70,
+        "negative": 17.1,
+        "neutral": 42.9,
+        "positive": 40.0
+      },
+      {
+        "id": "meningitis",
+        "label": "Meningitis",
+        "n": 67,
+        "negative": 4.5,
+        "neutral": 40.3,
+        "positive": 55.2
+      },
+      {
+        "id": "tuberculosis",
+        "label": "Tuberculosis",
+        "n": 32,
+        "negative": 6.2,
+        "neutral": 56.2,
+        "positive": 37.5
+      }
+    ],
+    "series": {
+      "all": [
+        {
+          "period": "2026-09-24",
+          "n": 181,
+          "negative": 21.5,
+          "neutral": 34.3,
+          "positive": 44.2
+        },
+        {
+          "period": "2026-09-25",
+          "n": 200,
+          "negative": 23.5,
+          "neutral": 32.0,
+          "positive": 44.5
+        },
+        {
+          "period": "2026-09-26",
+          "n": 158,
+          "negative": 25.3,
+          "neutral": 33.5,
+          "positive": 41.1
+        },
+        {
+          "period": "2026-09-27",
+          "n": 126,
+          "negative": 28.6,
+          "neutral": 38.9,
+          "positive": 32.5
+        },
+        {
+          "period": "2026-09-28",
+          "n": 200,
+          "negative": 30.5,
+          "neutral": 32.0,
+          "positive": 37.5
+        },
+        {
+          "period": "2026-09-29",
+          "n": 351,
+          "negative": 19.7,
+          "neutral": 36.8,
+          "positive": 43.6
+        },
+        {
+          "period": "2026-09-30",
+          "n": 104,
+          "negative": 23.1,
+          "neutral": 37.5,
+          "positive": 39.4
+        }
+      ],
+      "covid19": [
+        {
+          "period": "2026-09-24",
+          "n": 69,
+          "negative": 37.7,
+          "neutral": 34.8,
+          "positive": 27.5
+        },
+        {
+          "period": "2026-09-25",
+          "n": 98,
+          "negative": 34.7,
+          "neutral": 31.6,
+          "positive": 33.7
+        },
+        {
+          "period": "2026-09-26",
+          "n": 78,
+          "negative": 39.7,
+          "neutral": 29.5,
+          "positive": 30.8
+        },
+        {
+          "period": "2026-09-27",
+          "n": 74,
+          "negative": 37.8,
+          "neutral": 39.2,
+          "positive": 23.0
+        },
+        {
+          "period": "2026-09-28",
+          "n": 120,
+          "negative": 40.0,
+          "neutral": 30.0,
+          "positive": 30.0
+        },
+        {
+          "period": "2026-09-29",
+          "n": 134,
+          "negative": 34.3,
+          "neutral": 37.3,
+          "positive": 28.4
+        },
+        {
+          "period": "2026-09-30",
+          "n": 40,
+          "negative": 45.0,
+          "neutral": 25.0,
+          "positive": 30.0
+        }
+      ],
+      "mmr": [
+        {
+          "period": "2026-09-24",
+          "n": 46,
+          "negative": 17.4,
+          "neutral": 34.8,
+          "positive": 47.8
+        },
+        {
+          "period": "2026-09-25",
+          "n": 41,
+          "negative": 14.6,
+          "neutral": 29.3,
+          "positive": 56.1
+        },
+        {
+          "period": "2026-09-26",
+          "n": 49,
+          "negative": 12.2,
+          "neutral": 30.6,
+          "positive": 57.1
+        },
+        {
+          "period": "2026-09-27",
+          "n": 19
+        },
+        {
+          "period": "2026-09-28",
+          "n": 29
+        },
+        {
+          "period": "2026-09-29",
+          "n": 54,
+          "negative": 20.4,
+          "neutral": 16.7,
+          "positive": 63.0
+        },
+        {
+          "period": "2026-09-30",
+          "n": 14
+        }
+      ],
+      "hpv": [
+        {
+          "period": "2026-09-24",
+          "n": 27
+        },
+        {
+          "period": "2026-09-25",
+          "n": 26
+        },
+        {
+          "period": "2026-09-26",
+          "n": 12
+        },
+        {
+          "period": "2026-09-27",
+          "n": 15
+        },
+        {
+          "period": "2026-09-28",
+          "n": 28
+        },
+        {
+          "period": "2026-09-29",
+          "n": 115,
+          "negative": 6.1,
+          "neutral": 38.3,
+          "positive": 55.7
+        },
+        {
+          "period": "2026-09-30",
+          "n": 28
+        }
+      ],
+      "polio": [
+        {
+          "period": "2026-09-24",
+          "n": 24
+        },
+        {
+          "period": "2026-09-25",
+          "n": 18
+        },
+        {
+          "period": "2026-09-26",
+          "n": 13
+        },
+        {
+          "period": "2026-09-27",
+          "n": 9
+        },
+        {
+          "period": "2026-09-28",
+          "n": 12
+        },
+        {
+          "period": "2026-09-29",
+          "n": 26
+        },
+        {
+          "period": "2026-09-30",
+          "n": 1
+        }
+      ],
+      "hepatitis_b": [
+        {
+          "period": "2026-09-24",
+          "n": 16
+        },
+        {
+          "period": "2026-09-25",
+          "n": 15
+        },
+        {
+          "period": "2026-09-26",
+          "n": 6
+        },
+        {
+          "period": "2026-09-27",
+          "n": 10
+        },
+        {
+          "period": "2026-09-28",
+          "n": 9
+        },
+        {
+          "period": "2026-09-29",
+          "n": 35,
+          "negative": 11.4,
+          "neutral": 34.3,
+          "positive": 54.3
+        },
+        {
+          "period": "2026-09-30",
+          "n": 10
+        }
+      ],
+      "hepatitis_a": [
+        {
+          "period": "2026-09-24",
+          "n": 2
+        },
+        {
+          "period": "2026-09-25",
+          "n": 1
+        },
+        {
+          "period": "2026-09-26",
+          "n": 6
+        },
+        {
+          "period": "2026-09-27",
+          "n": 4
+        },
+        {
+          "period": "2026-09-28",
+          "n": 3
+        },
+        {
+          "period": "2026-09-29",
+          "n": 3
+        },
+        {
+          "period": "2026-09-30",
+          "n": 2
+        }
+      ],
+      "chickenpox": [
+        {
+          "period": "2026-09-24",
+          "n": 3
+        },
+        {
+          "period": "2026-09-25",
+          "n": 9
+        },
+        {
+          "period": "2026-09-26",
+          "n": 6
+        },
+        {
+          "period": "2026-09-27",
+          "n": 7
+        },
+        {
+          "period": "2026-09-28",
+          "n": 6
+        },
+        {
+          "period": "2026-09-29",
+          "n": 28
+        },
+        {
+          "period": "2026-09-30",
+          "n": 11
+        }
+      ],
+      "meningitis": [
+        {
+          "period": "2026-09-24",
+          "n": 9
+        },
+        {
+          "period": "2026-09-25",
+          "n": 11
+        },
+        {
+          "period": "2026-09-26",
+          "n": 5
+        },
+        {
+          "period": "2026-09-27",
+          "n": 3
+        },
+        {
+          "period": "2026-09-28",
+          "n": 7
+        },
+        {
+          "period": "2026-09-29",
+          "n": 18
+        },
+        {
+          "period": "2026-09-30",
+          "n": 14
+        }
+      ],
+      "tuberculosis": [
+        {
+          "period": "2026-09-24",
+          "n": 3
+        },
+        {
+          "period": "2026-09-25",
+          "n": 2
+        },
+        {
+          "period": "2026-09-26",
+          "n": 5
+        },
+        {
+          "period": "2026-09-27",
+          "n": 5
+        },
+        {
+          "period": "2026-09-28",
+          "n": 4
+        },
+        {
+          "period": "2026-09-29",
+          "n": 13
+        },
+        {
+          "period": "2026-09-30",
+          "n": 0
+        }
+      ]
+    }
+  },
+  "quarterly": {
+    "start": "2023-10-02",
+    "end": "2026-09-23",
+    "categories": [
+      {
+        "id": "all",
+        "label": "All vaccines",
+        "n": 982,
+        "negative": 35.4,
+        "neutral": 25.4,
+        "positive": 39.2
+      },
+      {
+        "id": "covid19",
+        "label": "COVID-19",
+        "n": 401,
+        "negative": 49.4,
+        "neutral": 22.4,
+        "positive": 28.2
+      },
+      {
+        "id": "mmr",
+        "label": "MMR",
+        "n": 300,
+        "negative": 25.3,
+        "neutral": 26.0,
+        "positive": 48.7
+      },
+      {
+        "id": "hpv",
+        "label": "HPV",
+        "n": 232,
+        "negative": 25.9,
+        "neutral": 23.7,
+        "positive": 50.4
+      },
+      {
+        "id": "polio",
+        "label": "Polio",
+        "n": 224,
+        "negative": 24.1,
+        "neutral": 25.0,
+        "positive": 50.9
+      },
+      {
+        "id": "hepatitis_b",
+        "label": "Hepatitis B",
+        "n": 232,
+        "negative": 35.8,
+        "neutral": 28.0,
+        "positive": 36.2
+      },
+      {
+        "id": "hepatitis_a",
+        "label": "Hepatitis A",
+        "n": 115,
+        "negative": 35.7,
+        "neutral": 33.9,
+        "positive": 30.4
+      },
+      {
+        "id": "chickenpox",
+        "label": "Chickenpox",
+        "n": 153,
+        "negative": 23.5,
+        "neutral": 39.2,
+        "positive": 37.3
+      },
+      {
+        "id": "meningitis",
+        "label": "Meningitis",
+        "n": 123,
+        "negative": 35.8,
+        "neutral": 30.1,
+        "positive": 34.1
+      },
+      {
+        "id": "tuberculosis",
+        "label": "Tuberculosis",
+        "n": 51,
+        "negative": 15.7,
+        "neutral": 21.6,
+        "positive": 62.7
+      }
+    ],
+    "series": {
+      "all": [
+        {
+          "period": "2023-Q4",
+          "n": 49,
+          "negative": 42.9,
+          "neutral": 14.3,
+          "positive": 42.9
+        },
+        {
+          "period": "2024-Q1",
+          "n": 49,
+          "negative": 32.7,
+          "neutral": 28.6,
+          "positive": 38.8
+        },
+        {
+          "period": "2024-Q2",
+          "n": 46,
+          "negative": 39.1,
+          "neutral": 32.6,
+          "positive": 28.3
+        },
+        {
+          "period": "2024-Q3",
+          "n": 51,
+          "negative": 31.4,
+          "neutral": 21.6,
+          "positive": 47.1
+        },
+        {
+          "period": "2024-Q4",
+          "n": 51,
+          "negative": 45.1,
+          "neutral": 17.6,
+          "positive": 37.3
+        },
+        {
+          "period": "2025-Q1",
+          "n": 52,
+          "negative": 32.7,
+          "neutral": 30.8,
+          "positive": 36.5
+        },
+        {
+          "period": "2025-Q2",
+          "n": 67,
+          "negative": 64.2,
+          "neutral": 16.4,
+          "positive": 19.4
+        },
+        {
+          "period": "2025-Q3",
+          "n": 93,
+          "negative": 40.9,
+          "neutral": 20.4,
+          "positive": 38.7
+        },
+        {
+          "period": "2025-Q4",
+          "n": 85,
+          "negative": 38.8,
+          "neutral": 21.2,
+          "positive": 40.0
+        },
+        {
+          "period": "2026-Q1",
+          "n": 76,
+          "negative": 25.0,
+          "neutral": 28.9,
+          "positive": 46.1
+        },
+        {
+          "period": "2026-Q2",
+          "n": 57,
+          "negative": 40.4,
+          "neutral": 22.8,
+          "positive": 36.8
+        },
+        {
+          "period": "2026-Q3",
+          "n": 306,
+          "negative": 26.5,
+          "neutral": 30.7,
+          "positive": 42.8
+        }
+      ],
+      "covid19": [
+        {
+          "period": "2023-Q4",
+          "n": 23
+        },
+        {
+          "period": "2024-Q1",
+          "n": 18
+        },
+        {
+          "period": "2024-Q2",
+          "n": 23
+        },
+        {
+          "period": "2024-Q3",
+          "n": 27
+        },
+        {
+          "period": "2024-Q4",
+          "n": 26
+        },
+        {
+          "period": "2025-Q1",
+          "n": 28
+        },
+        {
+          "period": "2025-Q2",
+          "n": 31,
+          "negative": 67.7,
+          "neutral": 12.9,
+          "positive": 19.4
+        },
+        {
+          "period": "2025-Q3",
+          "n": 34,
+          "negative": 52.9,
+          "neutral": 20.6,
+          "positive": 26.5
+        },
+        {
+          "period": "2025-Q4",
+          "n": 18
+        },
+        {
+          "period": "2026-Q1",
+          "n": 28
+        },
+        {
+          "period": "2026-Q2",
+          "n": 21
+        },
+        {
+          "period": "2026-Q3",
+          "n": 124,
+          "negative": 41.1,
+          "neutral": 25.8,
+          "positive": 33.1
+        }
+      ],
+      "mmr": [
+        {
+          "period": "2023-Q4",
+          "n": 8
+        },
+        {
+          "period": "2024-Q1",
+          "n": 13
+        },
+        {
+          "period": "2024-Q2",
+          "n": 5
+        },
+        {
+          "period": "2024-Q3",
+          "n": 11
+        },
+        {
+          "period": "2024-Q4",
+          "n": 20
+        },
+        {
+          "period": "2025-Q1",
+          "n": 15
+        },
+        {
+          "period": "2025-Q2",
+          "n": 19
+        },
+        {
+          "period": "2025-Q3",
+          "n": 40,
+          "negative": 30.0,
+          "neutral": 22.5,
+          "positive": 47.5
+        },
+        {
+          "period": "2025-Q4",
+          "n": 29
+        },
+        {
+          "period": "2026-Q1",
+          "n": 24
+        },
+        {
+          "period": "2026-Q2",
+          "n": 23
+        },
+        {
+          "period": "2026-Q3",
+          "n": 93,
+          "negative": 21.5,
+          "neutral": 32.3,
+          "positive": 46.2
+        }
+      ],
+      "hpv": [
+        {
+          "period": "2023-Q4",
+          "n": 17
+        },
+        {
+          "period": "2024-Q1",
+          "n": 24
+        },
+        {
+          "period": "2024-Q2",
+          "n": 11
+        },
+        {
+          "period": "2024-Q3",
+          "n": 15
+        },
+        {
+          "period": "2024-Q4",
+          "n": 15
+        },
+        {
+          "period": "2025-Q1",
+          "n": 13
+        },
+        {
+          "period": "2025-Q2",
+          "n": 20
+        },
+        {
+          "period": "2025-Q3",
+          "n": 21
+        },
+        {
+          "period": "2025-Q4",
+          "n": 29
+        },
+        {
+          "period": "2026-Q1",
+          "n": 30,
+          "negative": 13.3,
+          "neutral": 30.0,
+          "positive": 56.7
+        },
+        {
+          "period": "2026-Q2",
+          "n": 7
+        },
+        {
+          "period": "2026-Q3",
+          "n": 30,
+          "negative": 13.3,
+          "neutral": 23.3,
+          "positive": 63.3
+        }
+      ],
+      "polio": [
+        {
+          "period": "2023-Q4",
+          "n": 8
+        },
+        {
+          "period": "2024-Q1",
+          "n": 8
+        },
+        {
+          "period": "2024-Q2",
+          "n": 5
+        },
+        {
+          "period": "2024-Q3",
+          "n": 10
+        },
+        {
+          "period": "2024-Q4",
+          "n": 20
+        },
+        {
+          "period": "2025-Q1",
+          "n": 15
+        },
+        {
+          "period": "2025-Q2",
+          "n": 19
+        },
+        {
+          "period": "2025-Q3",
+          "n": 25
+        },
+        {
+          "period": "2025-Q4",
+          "n": 29
+        },
+        {
+          "period": "2026-Q1",
+          "n": 19
+        },
+        {
+          "period": "2026-Q2",
+          "n": 15
+        },
+        {
+          "period": "2026-Q3",
+          "n": 51,
+          "negative": 17.6,
+          "neutral": 31.4,
+          "positive": 51.0
+        }
+      ],
+      "hepatitis_b": [
+        {
+          "period": "2023-Q4",
+          "n": 5
+        },
+        {
+          "period": "2024-Q1",
+          "n": 7
+        },
+        {
+          "period": "2024-Q2",
+          "n": 7
+        },
+        {
+          "period": "2024-Q3",
+          "n": 10
+        },
+        {
+          "period": "2024-Q4",
+          "n": 16
+        },
+        {
+          "period": "2025-Q1",
+          "n": 13
+        },
+        {
+          "period": "2025-Q2",
+          "n": 27
+        },
+        {
+          "period": "2025-Q3",
+          "n": 37,
+          "negative": 35.1,
+          "neutral": 27.0,
+          "positive": 37.8
+        },
+        {
+          "period": "2025-Q4",
+          "n": 36,
+          "negative": 47.2,
+          "neutral": 27.8,
+          "positive": 25.0
+        },
+        {
+          "period": "2026-Q1",
+          "n": 19
+        },
+        {
+          "period": "2026-Q2",
+          "n": 15
+        },
+        {
+          "period": "2026-Q3",
+          "n": 40,
+          "negative": 27.5,
+          "neutral": 35.0,
+          "positive": 37.5
+        }
+      ],
+      "hepatitis_a": [
+        {
+          "period": "2023-Q4",
+          "n": 3
+        },
+        {
+          "period": "2024-Q1",
+          "n": 4
+        },
+        {
+          "period": "2024-Q2",
+          "n": 3
+        },
+        {
+          "period": "2024-Q3",
+          "n": 6
+        },
+        {
+          "period": "2024-Q4",
+          "n": 13
+        },
+        {
+          "period": "2025-Q1",
+          "n": 9
+        },
+        {
+          "period": "2025-Q2",
+          "n": 12
+        },
+        {
+          "period": "2025-Q3",
+          "n": 15
+        },
+        {
+          "period": "2025-Q4",
+          "n": 10
+        },
+        {
+          "period": "2026-Q1",
+          "n": 13
+        },
+        {
+          "period": "2026-Q2",
+          "n": 5
+        },
+        {
+          "period": "2026-Q3",
+          "n": 22
+        }
+      ],
+      "chickenpox": [
+        {
+          "period": "2023-Q4",
+          "n": 4
+        },
+        {
+          "period": "2024-Q1",
+          "n": 6
+        },
+        {
+          "period": "2024-Q2",
+          "n": 4
+        },
+        {
+          "period": "2024-Q3",
+          "n": 7
+        },
+        {
+          "period": "2024-Q4",
+          "n": 10
+        },
+        {
+          "period": "2025-Q1",
+          "n": 11
+        },
+        {
+          "period": "2025-Q2",
+          "n": 14
+        },
+        {
+          "period": "2025-Q3",
+          "n": 20
+        },
+        {
+          "period": "2025-Q4",
+          "n": 10
+        },
+        {
+          "period": "2026-Q1",
+          "n": 11
+        },
+        {
+          "period": "2026-Q2",
+          "n": 9
+        },
+        {
+          "period": "2026-Q3",
+          "n": 47,
+          "negative": 19.1,
+          "neutral": 46.8,
+          "positive": 34.0
+        }
+      ],
+      "meningitis": [
+        {
+          "period": "2023-Q4",
+          "n": 2
+        },
+        {
+          "period": "2024-Q1",
+          "n": 0
+        },
+        {
+          "period": "2024-Q2",
+          "n": 5
+        },
+        {
+          "period": "2024-Q3",
+          "n": 1
+        },
+        {
+          "period": "2024-Q4",
+          "n": 5
+        },
+        {
+          "period": "2025-Q1",
+          "n": 6
+        },
+        {
+          "period": "2025-Q2",
+          "n": 15
+        },
+        {
+          "period": "2025-Q3",
+          "n": 13
+        },
+        {
+          "period": "2025-Q4",
+          "n": 13
+        },
+        {
+          "period": "2026-Q1",
+          "n": 19
+        },
+        {
+          "period": "2026-Q2",
+          "n": 10
+        },
+        {
+          "period": "2026-Q3",
+          "n": 34,
+          "negative": 35.3,
+          "neutral": 29.4,
+          "positive": 35.3
+        }
+      ],
+      "tuberculosis": [
+        {
+          "period": "2023-Q4",
+          "n": 4
+        },
+        {
+          "period": "2024-Q1",
+          "n": 1
+        },
+        {
+          "period": "2024-Q2",
+          "n": 1
+        },
+        {
+          "period": "2024-Q3",
+          "n": 1
+        },
+        {
+          "period": "2024-Q4",
+          "n": 4
+        },
+        {
+          "period": "2025-Q1",
+          "n": 0
+        },
+        {
+          "period": "2025-Q2",
+          "n": 4
+        },
+        {
+          "period": "2025-Q3",
+          "n": 3
+        },
+        {
+          "period": "2025-Q4",
+          "n": 8
+        },
+        {
+          "period": "2026-Q1",
+          "n": 11
+        },
+        {
+          "period": "2026-Q2",
+          "n": 4
+        },
+        {
+          "period": "2026-Q3",
+          "n": 10
+        }
+      ]
+    }
+  }
+}
