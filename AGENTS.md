@@ -10,13 +10,14 @@ hand-edit it, and don't delete it from a diff (it regenerates).
 ## What this project is
 
 **VaX — Vaccine Sentiment & Misinformation Analysis.** A Monash FIT3164 team project. The
-shipped product is a web app where you paste a public X (Twitter) post URL; the backend
-fetches that post, stores it in Postgres, and — once the models exist — scores it for
-sentiment and misinformation.
+product is a web app where you type a vaccine claim or paste a public X (Twitter) post URL;
+the backend scores it for sentiment and misinformation using two fine-tuned ModernBERT
+services, with an optional plain-language explanation from a local Ollama LLM. A Trends
+page charts sentiment over time from pre-built JSON.
 
-**It is unfinished, and the gap is specific:** the data plumbing works end to end, but both
-ML microservices are literally empty files. Don't assume a described feature is implemented;
-the "Reality check" table below records what actually runs today.
+**Everything runs locally** — four processes on one machine, no Docker. Don't add
+containers, a compose file or Dockerfiles; that plan was dropped. The "Reality check" table
+below records what actually runs today.
 
 ---
 
@@ -31,17 +32,20 @@ the "Reality check" table below records what actually runs today.
 | Config | python-dotenv | 1.2.2 | `backend/.env`, never committed |
 | Frontend | **Next.js** (App Router) | **16.3.0** | see the Next 16 warning below |
 | UI | React / TypeScript / Tailwind | 19.2.8 / 5 / **v4** | Tailwind v4 via `@tailwindcss/postcss` |
-| Charts | recharts | 3.10.1 | installed, not yet used — a dashboard is intended |
+| Charts | recharts | 3.10.1 | `SentimentTrendChart.tsx` on the Trends page |
 | Lint | ESLint + eslint-config-next | 9 / 16.3.0 | frontend only |
 | X fetching | **Python stdlib only** | — | `urllib`, no `requests`; keep it that way |
-| ML (planned) | torch + transformers, BERT | — | blueprint in `docker-instructions.md` |
-| Containers (planned) | Docker + docker compose | — | nothing is containerised yet |
+| ML | torch + transformers, ModernBERT | 2.14.0 / 5.16.1 | `model_sentiment/`, `model_misinformation/` |
+| Service calls | httpx | — | main_api → model services and Ollama |
+| Explanation LLM | Ollama, `llama3.2:3b` | — | optional; result page works without it |
 
 **Python is 3.13.2** in `backend/venv` (the README says 3.10+; the code uses `X | None`
-unions and `list[dict]`, so 3.10 is the real floor).
+unions and `list[dict]`, so 3.10 is the real floor). **All backend services share that one
+venv.**
 
-**There is no test suite, no Python linter config, and no CI.** Verify changes by running
-the code. Don't invent a `pytest` command — none exists.
+**Tests:** pytest, in `backend/main_api/tests/` (`pytest.ini` sets `pythonpath = .`). They
+mock the model services, so they run without weights. pytest isn't in any
+`requirements.txt` — `pip install pytest` first. There is no Python linter config and no CI.
 
 ---
 
@@ -51,17 +55,38 @@ Everything below assumes the venv is active. **It must be activated in every new
 (`(venv)` appears in the prompt); a `ModuleNotFoundError` on an installed package almost
 always means it isn't.
 
-```bash
-# backend (terminal 1)
-cd backend/main_api
-..\venv\Scripts\activate          # macOS/Linux: source ../venv/bin/activate
-uvicorn main:app --reload         # API on :8000, interactive docs at /docs
+Running the app takes four terminals. The model weights (~600 MB each) aren't in git:
+`VaX-model-weights.zip` from the team Google Drive, extracted into the repo root, puts them
+at `backend/model_sentiment/modernbert_model_weighted2/final_model/` and
+`backend/model_misinformation/savedModel/final_model/`.
 
-# frontend (terminal 2)
+```bash
+# terminal 1 - sentiment model, :8001
+cd backend/model_sentiment
+uvicorn app:app --port 8001
+
+# terminal 2 - misinformation model, :8002
+cd backend/model_misinformation
+uvicorn app:app --port 8002
+
+# terminal 3 - main API, :8000 (interactive docs at /docs)
+cd backend/main_api
+uvicorn main:app --reload
+
+# terminal 4 - frontend, :3000
 cd frontend
-npm run dev                       # :3000
+npm run dev
 npm run build                     # see the src/pages/ trap below
 npm run lint
+```
+
+Activate with `..\venv\Scripts\activate` (macOS/Linux: `source ../venv/bin/activate`), or
+call `..\venv\Scripts\uvicorn` directly.
+
+```bash
+# tests
+cd backend/main_api
+python -m pytest
 ```
 
 ```bash
@@ -86,15 +111,29 @@ python x-scraper.py --from-file ids.csv --dry-run    # catches float64-mangled 1
 **Adding a Python package:** install it, then add it *by name* to the right
 `requirements.txt`. Never `pip freeze >`. `main_api/requirements.txt` was generated that
 way and lists torch, opencv, pandas and Jupyter — ~2.5 GB for a service that needs only
-fastapi, uvicorn, sqlmodel, psycopg2-binary and python-dotenv. That bloat matters once
-these become separate containers.
+fastapi, uvicorn, httpx, sqlmodel, psycopg2-binary and python-dotenv. Because every
+service shares one venv, its frozen `torch==2.10.0` pin also conflicts with the
+`torch==2.14.0` the model services need — **don't `pip install -r main_api/requirements.txt`**;
+the README's setup installs `model_sentiment/requirements.txt` plus main_api's packages by
+name.
 
 ---
 
 ## Architecture
 
-Three tiers plus two planned ML sidecars: **Next.js → FastAPI → Supabase Postgres**, with
-`model_sentiment` (:8001) and `model_misinformation` to be called over HTTP by the main API.
+**Next.js (:3000) → FastAPI main_api (:8000)**, which calls three local HTTP services and
+one optional database:
+
+| Service | Default URL (env override) | Notes |
+|---|---|---|
+| `model_sentiment` | `http://localhost:8001/predict` (`SENTIMENT_MODEL_URL`) | weights dir: `SENTIMENT_MODEL_DIR` |
+| `model_misinformation` | `http://localhost:8002/predict` (`MISINFO_MODEL_URL`) | weights dir: `MISINFO_MODEL_DIR` |
+| Ollama | `http://localhost:11434/api/generate` (`OLLAMA_URL`, `OLLAMA_MODEL`) | optional |
+| Supabase Postgres | `DATABASE_URL` | optional; only `/api/post(s)` use it |
+
+Both model services take `{"texts": [...]}` and return `{"predictions": [{label, score,
+scores}]}`. They load weights once at startup, so they take a few seconds before answering.
+main_api starts without `DATABASE_URL` — the analysis routes never touch the database.
 
 ### The normalised post dict is the central contract
 
@@ -166,9 +205,12 @@ re-scored without rewriting its row. That table does not exist yet.
   statements). Percent-encode `@ : / ? # %` in the password.
 - **`SSL connection has been closed unexpectedly`** means the free-tier project paused after
   a week idle — unpause in the dashboard, data is preserved.
-- **`npm run build` fails** on `src/pages/homepage/homepage.tsx` and `src/pages/result/result.tsx`:
-  they're empty, but `src/pages/` is the Pages Router directory so Next demands a default
-  export. Delete them or move them under `src/components/`.
+- **`npm run build` fails** prerendering `/result/result`. The App Router pages in `src/app/`
+  import their view components from `src/pages/*/`, but `src/pages/` is also the Pages
+  Router directory, so Next additionally builds each file there as its own route — and
+  `result.tsx` crashes with no props (`Cannot read properties of undefined (reading 'ok')`).
+  `npm run dev` is unaffected. The fix is to move those components out of `src/pages/`
+  (e.g. under `src/components/`) and update the four imports.
 - **Next.js 16 is newer than most training data.** `layout.tsx` already uses the
   `LayoutProps<"/">` global type. Check `node_modules/next/dist/docs/` before writing
   Next-specific code rather than relying on recalled App Router conventions.
@@ -183,17 +225,19 @@ re-scored without rewriting its row. That table does not exist yet.
 
 | Area | State |
 |---|---|
-| `POST /api/post`, `GET /api/posts`, `GET /` | Working. Those three are the entire API. |
+| `GET /`, `GET /analyse/sentiment?q=`, `GET /analyse/misinformation?q=`, `POST /analyse/misinformation/explanation` | Working. `q` is a claim or a post URL (fetched via `x_post_fetcher`). |
+| `POST /api/post`, `GET /api/posts` | Working, need `DATABASE_URL`. No page calls them. |
+| `model_sentiment/`, `model_misinformation/` | Working FastAPI services; need the weights zip (not in git). `model_sentiment/` also holds training code (`modernbert.py`, `train_sentiment_colab.ipynb`). |
 | `x_post_fetcher.py`, `x-scraper.py` | Working, keyless. |
 | `x_api_search.py` | Working, but the X account is **`402 credits depleted`** (token itself is valid). |
+| `main_api/apify/` | Paid Apify collector (`APIFY_TOKEN`): monthly history + last 7 days. |
+| `backend/scripts/` | Offline: run the models over scrapes and build `frontend/src/data/*.json`. |
 | Supabase connection | Configured; the table was still empty as of the last commit touching it. |
-| `model_sentiment/`, `model_misinformation/` | **Every file is 0 bytes** — `app.py`, `Dockerfile`, `requirements.txt`. |
-| Predictions table | Does not exist. |
-| Frontend | One page → one component (`PostLookup`). `GET /api/posts` is never called; `test.tsx` and both `src/pages/` files are empty. |
-| Docker | Blueprint only in `docker-instructions.md`. No `docker-compose.yml` in the repo. |
+| Predictions table | Does not exist. Scores are computed per request, not stored. |
+| Frontend | Home, result, trends and info pages. Trends and trending-post cards read pre-built JSON from `src/data/`, so they need no backend. |
 
-**The only ordering anywhere in the served API is `fetched_at DESC`** — there is no ranking,
-no score column, no pagination beyond a 200 cap.
+**The only ordering anywhere in the served API is `fetched_at DESC`** on `/api/posts` —
+there is no ranking, no score column, no pagination beyond a 200 cap.
 
 ---
 
@@ -205,14 +249,13 @@ no score column, no pagination beyond a 200 cap.
 | `misinformation/VaccineTweets/*.csv` | 35 weekly files of bare post IDs — a large dehydrated corpus. |
 | `sentiment/sentimentvaccine1.csv` | 10,729 rows, vaccine-specific, `label` ∈ {-1, 0, 1} with annotator `agreement`. |
 | `sentiment/twitter_*_sentiment.csv` | Generic Kaggle Twitter sentiment set — **not** vaccine-specific. |
-| `misinfo_sentiment_predictions.csv` | 17,290 rows of model *output* (`predicted_sentiment`, `confidence`). Currently **untracked** in git. |
+| `misinfo_sentiment_predictions.csv` | 17,290 rows of model *output* (`predicted_sentiment`, `confidence`), rewritten by `backend/scripts/predict_sentiment.py`. |
 | `backend/scraper/labeled.jsonl` | 9,405 posts rehydrated from the labelled IDs (10,000 attempted; the rest unreachable). |
 
 These are **ID-and-time sampled, not popularity sampled** — which is why engagement-ranked
 live data doesn't match their distribution.
 
-Nothing yet bridges `labeled.jsonl` into Postgres, and no training script, notebook or
-model weights exist in the repo.
+Nothing yet bridges `labeled.jsonl` into Postgres. Model weights are never committed.
 
 ---
 

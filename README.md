@@ -32,13 +32,14 @@ Main-Repository/
 │   ├── .env                   # Your secrets — never committed
 │   └── .env.example           # Template for teammates — committed
 ├── data/                      # Training/reference datasets (CSV)
-├── frontend/                  # Next.js app (App Router, Tailwind)
-│   └── src/
-│       ├── app/               #   Routes
-│       ├── components/        #   React components
-│       └── data/              #   Pre-built JSON for the Trends page and trending posts
-└── docker-instructions.md     # Planned container architecture
+└── frontend/                  # Next.js app (App Router, Tailwind)
+    └── src/
+        ├── app/               #   Routes
+        ├── components/        #   React components
+        └── data/              #   Pre-built JSON for the Trends page and trending posts
 ```
+
+Everything runs locally as plain processes. There is no Docker setup.
 
 ---
 
@@ -249,8 +250,9 @@ pip install <package>
 > including transitive dependencies and anything you installed for unrelated work.
 > `main_api/requirements.txt` currently lists torch, opencv, pandas and Jupyter this way —
 > about 2.5 GB of installs for a service that needs only `fastapi`, `uvicorn`, `sqlmodel`,
-> `psycopg2-binary` and `python-dotenv`. Each service should list only what it imports,
-> which matters once these are separate containers.
+> `psycopg2-binary` and `python-dotenv`. Each service should list only what it imports.
+> All the backend services share one venv, so a stray pin in one file (like that
+> `torch==2.10.0`) breaks the others.
 
 **Secrets.** Never commit `.env`. It's covered by the root `.gitignore`. When you add a
 new variable, add a placeholder version to `.env.example` and commit *that*, so teammates
@@ -274,7 +276,7 @@ and secret rules at the repo root; Next.js and npm rules in `frontend/.gitignore
 | Result page says it couldn't reach the sentiment or misinformation model | That service isn't running (Terminal 1 or 2), or its weights are missing. Check step 1.3. |
 | Model service fails with `OSError` / `Can't load ... final_model` | The weights aren't where the service looks. The `final_model` folders must be at the paths in step 1.3, not nested one level deeper. |
 | Frontend shows "Could not reach the backend" | The API isn't running, or isn't on port 8000. Check Terminal 1. |
-| `next build` fails with `is not a module` | `src/pages/homepage/homepage.tsx` and `src/pages/result/result.tsx` are empty placeholder files. Because `src/pages/` is the Pages Router directory, Next treats them as routes and requires a default export. Delete them or move them into `src/components/`. |
+| `npm run build` fails prerendering `/result/result` (`Cannot read properties of undefined (reading 'ok')`) | The page components live in `src/pages/`, which Next also treats as the Pages Router directory, so it builds each file there as a separate route with no props. `npm run dev` is unaffected. Fix: move them into `src/components/` and update the imports in `src/app/*/page.tsx`. |
 
 To test the database connection on its own:
 
