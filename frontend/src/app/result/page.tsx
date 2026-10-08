@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import MisinformationExplanation, { ExplanationSkeleton } from "@/components/MisinformationExplanation";
-import Result from "@/pages/result/result";
+import Result from "@/components/Result";
 import { analyseMisinformation, analyseSentiment } from "@/lib/api";
 import { DEFAULT_QUERY } from "@/lib/mockData";
 

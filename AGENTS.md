@@ -76,7 +76,7 @@ uvicorn main:app --reload
 # terminal 4 - frontend, :3000
 cd frontend
 npm run dev
-npm run build                     # see the src/pages/ trap below
+npm run build && npm start        # production build, also on :3000
 npm run lint
 ```
 
@@ -205,12 +205,10 @@ re-scored without rewriting its row. That table does not exist yet.
   statements). Percent-encode `@ : / ? # %` in the password.
 - **`SSL connection has been closed unexpectedly`** means the free-tier project paused after
   a week idle — unpause in the dashboard, data is preserved.
-- **`npm run build` fails** prerendering `/result/result`. The App Router pages in `src/app/`
-  import their view components from `src/pages/*/`, but `src/pages/` is also the Pages
-  Router directory, so Next additionally builds each file there as its own route — and
-  `result.tsx` crashes with no props (`Cannot read properties of undefined (reading 'ok')`).
-  `npm run dev` is unaffected. The fix is to move those components out of `src/pages/`
-  (e.g. under `src/components/`) and update the four imports.
+- **Never create `frontend/src/pages/`.** It's the Pages Router directory: Next builds every
+  file in it as its own route, so a view component placed there gets prerendered with no
+  props and breaks `npm run build` (dev mode doesn't notice). Page views live in
+  `src/components/` and are imported by `src/app/*/page.tsx`.
 - **Next.js 16 is newer than most training data.** `layout.tsx` already uses the
   `LayoutProps<"/">` global type. Check `node_modules/next/dist/docs/` before writing
   Next-specific code rather than relying on recalled App Router conventions.

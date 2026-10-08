@@ -276,7 +276,7 @@ and secret rules at the repo root; Next.js and npm rules in `frontend/.gitignore
 | Result page says it couldn't reach the sentiment or misinformation model | That service isn't running (Terminal 1 or 2), or its weights are missing. Check step 1.3. |
 | Model service fails with `OSError` / `Can't load ... final_model` | The weights aren't where the service looks. The `final_model` folders must be at the paths in step 1.3, not nested one level deeper. |
 | Frontend shows "Could not reach the backend" | The API isn't running, or isn't on port 8000. Check Terminal 1. |
-| `npm run build` fails prerendering `/result/result` (`Cannot read properties of undefined (reading 'ok')`) | The page components live in `src/pages/`, which Next also treats as the Pages Router directory, so it builds each file there as a separate route with no props. `npm run dev` is unaffected. Fix: move them into `src/components/` and update the imports in `src/app/*/page.tsx`. |
+| `npm run build` fails with `Cannot find module '../../../src/pages/...'` | Stale generated types from an older `npm run dev`. Delete `frontend/.next` and build again. |
 
 To test the database connection on its own:
 

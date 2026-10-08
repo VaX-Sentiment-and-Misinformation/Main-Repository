@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Info from "@/pages/info/info";
+import Info from "@/components/Info";
 
 export const metadata: Metadata = {
   title: "Disease facts | VaX",

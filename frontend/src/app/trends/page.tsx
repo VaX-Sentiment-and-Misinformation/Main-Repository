@@ -1,4 +1,4 @@
-import Trends from "@/pages/trends/trends";
+import Trends from "@/components/Trends";
 
 export default function Page() {
   return <Trends />;
