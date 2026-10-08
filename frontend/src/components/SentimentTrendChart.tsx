@@ -3,6 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import { Bar, BarChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import trend from "@/data/sentimentTrend.json";
+import { downloadCsv } from "@/lib/csv";
 
 type Sentiment = "negative" | "neutral" | "positive";
 type ViewId = "monthly" | "daily" | "quarterly";
@@ -227,6 +228,33 @@ function ShareTable({ rows, firstHeader }: { rows: { key: string; label: string;
   );
 }
 
+// Share columns follow SERIES so the CSV matches the chart; under-threshold buckets get blanks, like ShareTable's "-"
+const csvShareHeaders = SERIES.map((s) => `${s.label} (%)`);
+const csvShares = (b: Bucket) => SERIES.map((s) => (plotted(b) ? b[s.key] : undefined));
+
+function DownloadButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      aria-label={label}
+      title={label}
+      onClick={onClick}
+      style={{
+        border: 0,
+        fontSize: 13,
+        fontWeight: 700,
+        padding: "6px 12px",
+        borderRadius: 9,
+        cursor: "pointer",
+        background: "#EEF1F4",
+        color: "#2A3440",
+      }}
+    >
+      Download CSV
+    </button>
+  );
+}
+
 function Segmented<T extends string>({
   options,
   value,
@@ -289,6 +317,13 @@ export default function SentimentTrendChart({ view: viewId }: { view: ViewId }) 
     .filter((c) => view.series[c.id].filter(plotted).length * 2 >= view.series[c.id].length)
     .map((c) => ({ value: c.id, label: c.label }));
 
+  // Exports the disease currently selected, every period including the sparse ones
+  const download = () =>
+    downloadCsv(`sentiment-${viewId}-${category}.csv`, [
+      ["Disease", view.firstHeader, "Posts", ...csvShareHeaders],
+      ...data.map((b) => [selected.label, b.period, b.n, ...csvShares(b)]),
+    ]);
+
   return (
     <section style={card}>
       {options.length > 1 && (
@@ -303,6 +338,7 @@ export default function SentimentTrendChart({ view: viewId }: { view: ViewId }) 
           <p style={cardSub}>{view.subtitle(selected.n)}</p>
         </div>
         <Legend shares={selected} />
+        <DownloadButton label={`Download ${subject} sentiment by ${view.unit} as CSV`} onClick={download} />
       </div>
 
       <div style={{ width: "100%", height: 280 }}>
@@ -375,6 +411,15 @@ export function SentimentByDisease() {
           </p>
         </div>
         <Legend />
+        <DownloadButton
+          label="Download sentiment by disease as CSV"
+          onClick={() =>
+            downloadCsv("sentiment-by-disease.csv", [
+              ["Disease", "Posts", ...csvShareHeaders],
+              ...BY_DISEASE.map((c) => [c.label, c.n, ...csvShares(c)]),
+            ])
+          }
+        />
       </div>
 
       <div style={{ width: "100%", height: BY_DISEASE.length * 46 + 30 }}>
